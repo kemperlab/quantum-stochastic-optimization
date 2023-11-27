@@ -1,1 +1,1 @@
-# quantum-optimization-feature-selection
+# Quantum Stochastic Optimization
