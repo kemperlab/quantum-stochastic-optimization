@@ -2,7 +2,7 @@ from typing import Sequence
 import numpy as np
 from numpy.typing import NDArray
 
-from src.utils.validation import check_ndarray
+from .utils.validation import check_ndarray
 
 
 def random_linearly_correlated_data(
