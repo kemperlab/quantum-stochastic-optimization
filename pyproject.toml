@@ -1,0 +1,27 @@
+[project]
+name = "qso"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+description = "Quantum Stochastic Optimization"
+version = "0.1.0"
+authors = [
+    { name = "Arvin Kushwaha", email = "me@arvinsk.org" }
+]
+dependencies = [
+    "pennylane==0.33.1",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "tox",
+    "pre-commit",
+    "bump2version",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
