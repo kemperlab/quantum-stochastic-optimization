@@ -27,9 +27,20 @@ class AdaptiveTrustRegion(Optimizer):
         super().__init__(qnode, param_count, key)
 
         self.jacobian: Callable[[Array, list[qml.Hamiltonian]],
-                                list[Array]] = jax.jacobian(self.circuit,
-                                                            argnums=0)
-        self.hessian = jax.hessian(self.circuit, argnums=0)
+                                list[Array]] = jax.jacrev(self.circuit,
+                                                          argnums=0)
+
+        # self.hessian = jax.hessian(self.circuit, argnums=0)
+
+        def hvp(params, hamiltonians, v):
+            return jax.jacfwd(
+                lambda params, hamiltonians: np.vdot(
+                    np.array(self.jacobian(params, hamiltonians)).mean(axis=0),
+                    v,
+                ),
+            )(params, hamiltonians)
+
+        self.hvp = hvp
 
         self.hyperparams = {
             'rho': rho,
@@ -58,17 +69,24 @@ class AdaptiveTrustRegion(Optimizer):
         )(self.hyperparams)
 
         jacobians = np.array(self.jacobian(self.params, hamiltonians))
-        hessians = np.array(self.hessian(self.params, hamiltonians))
+        # hessians = np.array(self.hessian(self.params, hamiltonians))
 
         mean_gradient = jacobians.mean(axis=0)
         mean_gradient_norm = np.linalg.norm(mean_gradient)
 
-        mean_hessian = hessians.mean(axis=0)
+        # mean_hessian = hessians.mean(axis=0)
+        # mean_hessian = np.eye(self.param_count)
 
         self.grad_norm = float(mean_gradient_norm)
 
         # cauchy point
-        step_scalar = mean_gradient.T @ mean_hessian @ mean_gradient
+        gradient_hessian_prod = self.hvp(
+            self.params,
+            hamiltonians,
+            mean_gradient,
+        )
+
+        step_scalar = mean_gradient.T @ gradient_hessian_prod
         if step_scalar <= 0:
             step_scalar = 1.
         else:
@@ -77,13 +95,15 @@ class AdaptiveTrustRegion(Optimizer):
                 mean_gradient_norm**3 / (self.delta_t * step_scalar),
             )
 
-        step = -step_scalar * self.delta_t / mean_gradient_norm * mean_gradient
+        step = -step_scalar * self.delta_t / mean_gradient_norm * mean_gradient  # a scaled version of the gradient
         self.step_norm = float(np.linalg.norm(step))
         self.step_scalar = float(step_scalar)
 
         # compute improvement ratio
         predicted_cost = (self.cost + np.dot(step, mean_gradient) +
-                          0.5 * np.dot(step, mean_hessian @ step))
+                          0.5 * np.dot(
+                              step, -step_scalar * self.delta_t /
+                              mean_gradient_norm * gradient_hessian_prod))
 
         new_params = self.params + step
         new_cost = self._evaluate_cost(new_params, hamiltonians)
