@@ -11,8 +11,11 @@ authors = [
     { name = "Arvin Kushwaha", email = "me@arvinsk.org" }
 ]
 dependencies = [
-    "pennylane==0.33.1",
+    "pennylane",
     "numpy",
+    "jax",
+    "python-rapidjson",
+    "pennylane-lightning"
 ]
 
 [project.optional-dependencies]

@@ -1,16 +1,17 @@
 import numpy as np
 from numpy.typing import NDArray, DTypeLike
+from jax import Array
 
 
 def check_ndarray(var_name: str,
-                  array: NDArray,
+                  array: NDArray | Array,
                   shape: None | tuple[int, ...] = None,
                   dtype: DTypeLike | None = None) -> None:
     """
-    Arguments
+    Parameters
     ---
     - `var_name` (`str`): The name of the variable in assertation messages
-    - `array` (`numpy.ndarray`): The array to validate
+    - `array` (`numpy.ndarray | jax.Array`): The array to validate
     - `shape` (`None | tuple[int, ...]`): The shape to assert the array to be.
       If `None`, do not validate shape.
     - `dtype` (`None | numpy.typing.DTypeLike`): The `dtype` to assert the array to be. If `None`, do not validate `dtype`.

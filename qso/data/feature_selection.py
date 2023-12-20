@@ -1,8 +1,10 @@
-from typing import Sequence
-import numpy as np
-from numpy.typing import NDArray
+import jax
+import jax.numpy as np
 
-from .utils.validation import check_ndarray
+from jax import Array
+from jax.random import KeyArray, PRNGKey
+
+from ..utils.validation import check_ndarray
 
 
 def random_linearly_correlated_data(
@@ -10,14 +12,14 @@ def random_linearly_correlated_data(
     k_real: int,
     k_fake: int,
     k_redundant: int,
-    beta_i: float | NDArray,
+    beta_i: float | Array,
     gamma: float,
     response_vector: np.ndarray,
     redundant_matrix: np.ndarray,
-    generator: np.random.Generator | None = None,
+    key: KeyArray | None = None,
 ):
     """
-    Arguments
+    Parameters
     ---
     - `samples` (`int`): The number of samples of generated data to return.
     - `k_real` (`int`): The number of real features to generate.
@@ -45,8 +47,8 @@ def random_linearly_correlated_data(
 
     """
 
-    if generator is None:
-        generator = np.random.default_rng(0)
+    if key is None:
+        key = PRNGKey(0)
 
     assert samples > 0 and k_real > 0, (
         "Expected `samples` and `k_real` to be ",
@@ -65,14 +67,14 @@ def random_linearly_correlated_data(
                   shape=(k_redundant, k_real))
     check_ndarray("response_vector", response_vector, shape=(k_real, ))
 
-    real_vars = generator.standard_normal(size=(k_real, samples))
-    fake_vars = generator.standard_normal(size=(k_fake, samples))
+    real_vars = key.standard_normal(size=(k_real, samples))
+    fake_vars = key.standard_normal(size=(k_fake, samples))
 
     redundant_vars = redundant_matrix @ (
-        generator.normal(scale=beta_i, size=(k_real, samples)) + real_vars)
+        jax.random.normal(key, shape=(k_real, samples)) * beta_i + real_vars)
     response_vars = response_vector @ (
-        generator.normal(scale=beta_i, size=(k_real, samples)) + real_vars)
+        jax.random.normal(key, shape=(k_real, samples)) * beta_i +
+        real_vars) + jax.random.normal(key, shape=(samples, )) * gamma
 
     return np.concatenate([real_vars, fake_vars, redundant_vars],
                           axis=0), response_vars
-
