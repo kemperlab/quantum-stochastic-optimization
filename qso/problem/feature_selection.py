@@ -1,10 +1,9 @@
 import pennylane as qml
-import jax.numpy as np
 import jax
 
 from typing import Callable
-from jax import Array
-from jax.random import KeyArray, PRNGKey
+from jax import numpy as np, Array
+from jax.random import PRNGKey
 
 from pennylane.qaoa import x_mixer
 
@@ -88,7 +87,7 @@ class FeatureSelectionProblem(QSOProblem):
                  feature_data: Array,
                  response_data: Array,
                  alpha: float = 0.5,
-                 key: KeyArray | None = None) -> None:
+                 key: Array | None = None) -> None:
         """
         Initialize an instance of the feature selection problem.
 
@@ -100,8 +99,8 @@ class FeatureSelectionProblem(QSOProblem):
           where `N` is the number of samples.
         - `alpha` (`float`): Determines the weight to give the redundancy and
           importance matrix components of the objective matrix.
-        - `key` (`jax.random.KeyArray`): A generator to deterministically
-          generate the pseudo-random numbers used.
+        - `key` (`jax.Array`): A generator to deterministically generate the
+          pseudo-random numbers used.
         """
         super().__init__(key)
         self.feature_data = feature_data

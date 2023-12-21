@@ -1,24 +1,24 @@
-import numpy as np
-from numpy.typing import NDArray, DTypeLike
 from jax import Array
+from jax.typing import DTypeLike
 
 
 def check_ndarray(var_name: str,
-                  array: NDArray | Array,
+                  array: Array,
                   shape: None | tuple[int, ...] = None,
                   dtype: DTypeLike | None = None) -> None:
     """
     Parameters
     ---
-    - `var_name` (`str`): The name of the variable in assertation messages
-    - `array` (`numpy.ndarray | jax.Array`): The array to validate
+    - `var_name` (`str`): The name of the variable in assertation messages.
+    - `array` (`jax.Array`): The array to validate.
     - `shape` (`None | tuple[int, ...]`): The shape to assert the array to be.
       If `None`, do not validate shape.
-    - `dtype` (`None | numpy.typing.DTypeLike`): The `dtype` to assert the array to be. If `None`, do not validate `dtype`.
+    - `dtype` (`None | jax.typing.DTypeLike`): The `dtype` to assert the array
+      to be. If `None`, do not validate `dtype`.
     """
 
-    assert isinstance(array, np.ndarray), (
-        f"Expected `{var_name}` to be of type `numpy.ndarray`, but found type: {type(array)}"
+    assert isinstance(array, Array), (
+        f"Expected `{var_name}` to be of type `jax.Array`, but found type: {type(array)}"
     )
 
     if shape is not None:

@@ -4,7 +4,7 @@ import pathlib
 from pprint import pformat
 from rapidjson import dump
 from tqdm import tqdm
-from typing import Any, Callable, Self
+from typing import Any, Callable
 
 
 class Logger():
@@ -21,7 +21,7 @@ class Logger():
         self.state: dict[str, Any] = metadata
         self.state['iterations'] = []
 
-        self.step_hooks: list[Callable[[Self], None]] = []
+        self.step_hooks: list[Callable[[Logger], None]] = []
 
     def save_json(self, path: str | PathLike, overwrite: bool = False):
         """
@@ -38,7 +38,7 @@ class Logger():
             raise FileExistsError(path)
 
         with open(path, 'w') as f:
-            dump(self.state, f)
+            dump(self.state, f, default=repr)
 
     def log_step(self, state: dict[str, Any], **kwargs):
         self.state['iterations'].append(state | kwargs)
@@ -55,7 +55,10 @@ class Logger():
     def __delitem__(self, idx: str):
         del self.state[idx]
 
-    def register_hook(self, callable: Callable[[Self], None]):
+    def __contains__(self, idx: Any) -> bool:
+        return idx in self.state
+
+    def register_hook(self, callable: Callable[[Logger], None]):
         self.step_hooks.append(callable)
 
 

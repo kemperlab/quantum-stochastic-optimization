@@ -1,46 +1,34 @@
 from operator import itemgetter
-from typing import Any, Callable
+from typing import Any
 
 import pennylane as qml
 import math
 import jax
 
-from jax.random import KeyArray
 from jax import numpy as np, Array
 
-from . import Optimizer
+from .optimizer import Optimizer, Circuit
 
 
 class AdaptiveTrustRegion(Optimizer):
 
-    def __init__(self,
-                 qnode: Callable[[Array, list[qml.Hamiltonian]], list[Array]],
-                 param_count: int,
-                 rho: float = 0.8,
-                 gamma_1: float = 1.1,
-                 gamma_2: float = 0.9,
-                 epsilon: float = 0.1,
-                 mu: float = 1000.,
-                 delta_0: float = 0.2,
-                 key: KeyArray | None = None,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        qnode: Circuit,
+        param_count: int,
+        rho: float = 0.8,
+        gamma_1: float = 1.1,
+        gamma_2: float = 0.9,
+        epsilon: float = 0.1,
+        mu: float = 1000.,
+        delta_0: float = 0.2,
+        n_hamiltonians: int = 1,
+        key: Array | None = None,
+        **kwargs,
+    ) -> None:
         super().__init__(qnode, param_count, key)
 
-        self.jacobian: Callable[[Array, list[qml.Hamiltonian]],
-                                list[Array]] = jax.jacrev(self.circuit,
-                                                          argnums=0)
-
-        # self.hessian = jax.hessian(self.circuit, argnums=0)
-
-        def hvp(params, hamiltonians, v):
-            return jax.jacfwd(
-                lambda params, hamiltonians: np.vdot(
-                    np.array(self.jacobian(params, hamiltonians)).mean(axis=0),
-                    v,
-                ),
-            )(params, hamiltonians)
-
-        self.hvp = hvp
+        self.jacobian: Circuit = jax.jacrev(self.circuit, argnums=0)
 
         self.hyperparams = {
             'rho': rho,
@@ -49,44 +37,40 @@ class AdaptiveTrustRegion(Optimizer):
             'epsilon': epsilon,
             'delta_0': delta_0,
             'mu': mu,
+            'n_hamiltonians': n_hamiltonians,
         }
 
-        eps = self.hyperparams['epsilon']
-        self.n_t = math.ceil(math.log2(max(3., self.iterations))**(1 + eps))
-
         self.delta_t = delta_0
-        self.grad_norm = 0.
+        self.sigma_t2 = 0.
 
         self.log["hyperparams"] = self.hyperparams
 
-    def optimizer_step(self, hamiltonians: list[qml.Hamiltonian]):
-        rho, gamma_1, gamma_2, epsilon, mu = itemgetter(
+    def optimizer_step(
+        self,
+        hamiltonians: list[qml.Hamiltonian],
+        shots_per_hamiltonian: int,
+    ):
+        rho, gamma_1, gamma_2, mu = itemgetter(
             'rho',
             'gamma_1',
             'gamma_2',
-            'epsilon',
             'mu',
         )(self.hyperparams)
 
-        jacobians = np.array(self.jacobian(self.params, hamiltonians))
-        # hessians = np.array(self.hessian(self.params, hamiltonians))
+        jacobians = np.array(
+            self.jacobian(self.params, hamiltonians, shots_per_hamiltonian))
 
         mean_gradient = jacobians.mean(axis=0)
         mean_gradient_norm = np.linalg.norm(mean_gradient)
 
-        # mean_hessian = hessians.mean(axis=0)
-        # mean_hessian = np.eye(self.param_count)
+        mean_hessian = np.eye(self.param_count)
 
         self.grad_norm = float(mean_gradient_norm)
 
         # cauchy point
-        gradient_hessian_prod = self.hvp(
-            self.params,
-            hamiltonians,
-            mean_gradient,
-        )
+        gradient_hessian_prod = mean_hessian @ mean_gradient
 
-        step_scalar = mean_gradient.T @ gradient_hessian_prod
+        step_scalar = (mean_gradient.T @ gradient_hessian_prod).item()
         if step_scalar <= 0:
             step_scalar = 1.
         else:
@@ -106,7 +90,8 @@ class AdaptiveTrustRegion(Optimizer):
                               mean_gradient_norm * gradient_hessian_prod))
 
         new_params = self.params + step
-        new_cost = self._evaluate_cost(new_params, hamiltonians)
+        new_cost = self._evaluate_cost(new_params, hamiltonians,
+                                       shots_per_hamiltonian)
 
         self.predicted_cost = float(predicted_cost)
         self.new_cost = float(new_cost)
@@ -122,22 +107,16 @@ class AdaptiveTrustRegion(Optimizer):
             self.delta_t *= gamma_2
 
         if len(hamiltonians) > 1:
-            sigma_t2 = np.trace(np.cov(jacobians, rowvar=False))
+            sigma_t2 = np.trace(np.cov(jacobians, rowvar=False)).item()
         else:
             sigma_t2 = 0.
 
         self.sigma_t2 = float(sigma_t2)
 
-        self.n_t = math.ceil(
-            math.log2(max(3., self.iterations))**(1 + epsilon) *
-            max(1., sigma_t2 / self.delta_t))
-
     def log_info(self) -> dict[str, Any]:
         return {
             "cost":
             self.cost,
-            "n_t":
-            self.n_t,
             "delta_t":
             self.delta_t,
             "gradient_norm":
@@ -151,3 +130,11 @@ class AdaptiveTrustRegion(Optimizer):
             "improvement_ratio":
             ((self.cost - self.new_cost) / (self.cost - self.predicted_cost)),
         }
+
+    def sample_count(self) -> int:
+        epsilon = self.hyperparams['epsilon']
+        n_hamiltonians = self.hyperparams['n_hamiltonians']
+
+        return math.ceil(n_hamiltonians *
+                         math.log2(max(3., self.iterations))**(1 + epsilon) *
+                         max(1., self.sigma_t2 / self.delta_t))

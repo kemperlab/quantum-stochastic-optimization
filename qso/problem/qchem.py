@@ -1,11 +1,10 @@
 import os
 import pennylane as qml
-import jax.numpy as np
 import jax
 
 from typing import Callable, Literal, Set
 from jax import Array
-from jax.random import KeyArray, PRNGKey
+from jax.random import PRNGKey
 
 from pennylane.qaoa import x_mixer
 from pennylane.fermi import FermiSentence
@@ -15,8 +14,6 @@ from argparse import ArgumentParser, Namespace
 
 from . import QSOProblem
 from ..loggers import PrettyPrint
-from ..optimizers.adam import Adam
-from ..optimizers.trust_region import AdaptiveTrustRegion
 from ..utils.ansatz import hamiltonian_ansatz
 
 
@@ -88,7 +85,7 @@ class TightBindingProblem(QSOProblem):
                  n_atoms: int,
                  orbitals: Set[Literal['s']],
                  alpha: tuple[float, float] = (10, 0.1),
-                 key: KeyArray | None = None) -> None:
+                 key: Array | None = None) -> None:
         """
         Initialize an instance of the tight binding problem.
 
@@ -97,7 +94,7 @@ class TightBindingProblem(QSOProblem):
         - `alpha` (`tuple[float, float]`): A tuple of the mean and standard
           deviation, respectively, of the lattice spacing in the tight binding
           model.
-        - `key` (`jax.random.KeyArray`): A generator to deterministically
+        - `key` (`jax.Array`): A generator to deterministically
           generate the pseudo-random numbers used.
         """
         super().__init__(key)
@@ -150,16 +147,22 @@ def run(args: Namespace):
 
         return qml.expval(hamiltonian)
 
-    def cost_circuit(params: Array, hamiltonians: list[qml.Hamiltonian]):
+    def cost_circuit(
+        params: Array,
+        hamiltonians: list[qml.Hamiltonian],
+        shots_per_hamiltonian: int,
+    ):
         return [
-            single_cost_circuit(params, hamiltonian)
+            single_cost_circuit(params,
+                                hamiltonian,
+                                shots=shots_per_hamiltonian)
             for hamiltonian in hamiltonians
         ]
 
-    optimizer = AdaptiveTrustRegion(cost_circuit,
-                                    param_count,
-                                    **vars(args),
-                                    key=optimizer_key)
+    optimizer = args.optimizer(cost_circuit,
+                               param_count,
+                               **vars(args),
+                               key=optimizer_key)
 
     logger = PrettyPrint(**vars(args))
     logger.register_hook(lambda x: x.save_json(args.data_file, overwrite=True))

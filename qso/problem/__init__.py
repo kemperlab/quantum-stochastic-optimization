@@ -1,13 +1,10 @@
-from math import ceil, e, log
 import pennylane as qml
 
 from abc import ABC, abstractmethod
 from jax import Array
-from jax.random import PRNGKey, KeyArray
+from jax.random import PRNGKey
 
 from operator import itemgetter
-
-from qso.optimizers.trust_region import AdaptiveTrustRegion
 
 from ..optimizers import Optimizer
 from ..loggers import Logger
@@ -20,7 +17,7 @@ class QSOProblem(ABC):
     optimize over.
     """
 
-    def __init__(self, key: KeyArray | None = None) -> None:
+    def __init__(self, key: Array | None = None) -> None:
         self.common_random_hamiltonians: list[qml.Hamiltonian] = []
         self.key = key if key is not None else PRNGKey(0)
 
@@ -48,8 +45,11 @@ class QSOProblem(ABC):
 
         return self.common_random_hamiltonians[:n]
 
-    def solve_problem(self, optimizer: Optimizer,
-                      logger: Logger) -> tuple[float, Array]:
+    def solve_problem(
+        self,
+        optimizer: Optimizer,
+        logger: Logger,
+    ) -> tuple[float, Array]:
         """
         Determines the ground state of the expectation value of system's
         Hamiltonian.
@@ -68,25 +68,33 @@ class QSOProblem(ABC):
           for the given optimizer ansatz.
         """
 
-        n_steps, samples_0, epsilon, resample = itemgetter(
+        (
+            n_steps,
+            resample,
+            shots,
+            split_shots,
+        ) = itemgetter(
             "n_steps",
-            "n_hamiltonians",
-            "epsilon",
             "resample",
+            "shots",
+            "split_shots",
         )(logger)
 
-        for t in range(n_steps):
-            if isinstance(optimizer, AdaptiveTrustRegion) and resample:
-                samples = optimizer.n_t
-            elif resample:
-                samples = ceil(samples_0 *
-                               log(max(e + 1, t), e)**(1 + epsilon))
+        for _ in range(n_steps):
+            samples = optimizer.sample_count() if resample else 1
+
+            if split_shots:
+                step_shots = shots // samples
             else:
-                samples = 1
+                step_shots = shots
 
             hamiltonians = self.get_hamiltonians(samples)
-            optimizer.step(hamiltonians)
+            optimizer.step(hamiltonians, step_shots)
 
-            logger.log_step(optimizer.log_info())
+            logger.log_step(optimizer.log_info()
+                            | {
+                                'shots_per_hamiltonian': step_shots,
+                                "samples": samples,
+                            })
 
         return optimizer.cost, optimizer.params

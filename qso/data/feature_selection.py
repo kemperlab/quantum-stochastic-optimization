@@ -2,7 +2,7 @@ import jax
 import jax.numpy as np
 
 from jax import Array
-from jax.random import KeyArray, PRNGKey
+from jax.random import PRNGKey
 
 from ..utils.validation import check_ndarray
 
@@ -16,7 +16,7 @@ def random_linearly_correlated_data(
     gamma: float,
     response_vector: np.ndarray,
     redundant_matrix: np.ndarray,
-    key: KeyArray | None = None,
+    key: Array | None = None,
 ):
     """
     Parameters
@@ -25,25 +25,24 @@ def random_linearly_correlated_data(
     - `k_real` (`int`): The number of real features to generate.
     - `k_fake` (`int`): The number of fake features to generate.
     - `k_redundant` (`int`): The number of redundant features to generate.
-    - `beta_i` (`float | numpy.ndarray`): The noise associated with each real
+    - `beta_i` (`float | jax.Array`): The noise associated with each real
       variable, can be a scalar (`float`) is there is a constant noise level or
-      a vector (`numpy.ndarray`) with shape `(k_real,)` to specify a noise
-      level for each real variable.
+      a vector (`jax.Array`) with shape `(k_real,)` to specify a noise level
+      for each real variable.
     - `gamma` (`float`): The amount of noise in the response variable.
-    - `redundant_matrix` (`numpy.ndarray`): The matrix that specifies
-      the correlation betweeen the real variables and the redundant variables.
-      This array is expected to have shape `(k_redundant, k_real)`.
-    - `response_vector` (`numpy.ndarray`): The vector that specifies the
+    - `redundant_matrix` (`jax.Array`): The matrix that specifies the
+      correlation betweeen the real variables and the redundant variables. This
+      array is expected to have shape `(k_redundant, k_real)`.
+    - `response_vector` (`jax.Array`): The vector that specifies the
       correlation betweeen the real variables and the response variable. This
       array is expected to have shape `(k_real,)`.
-    - `generator` (`numpy.random.Generator | None`): A generator for the random
-      noise. If `None`, instantiates the defaul numpy generator with the seed
-      0.
+    - `key` (`jax.Array | None`): A generator for the random noise. If `None`,
+      uses a `JAX` key with the seed `0`.
 
     Returns
     ---
-    - data (`numpy.ndarray`): An array of shape `(k_real + k_redundant + k_fake, samples)`.
-    - response (`numpy.ndarray`): An array of shape `(samples,)`.
+    - data (`jax.Array`): An array of shape `(k_real + k_redundant + k_fake, samples)`.
+    - response (`jax.Array`): An array of shape `(samples,)`.
 
     """
 
@@ -67,8 +66,8 @@ def random_linearly_correlated_data(
                   shape=(k_redundant, k_real))
     check_ndarray("response_vector", response_vector, shape=(k_real, ))
 
-    real_vars = key.standard_normal(size=(k_real, samples))
-    fake_vars = key.standard_normal(size=(k_fake, samples))
+    real_vars = jax.random.normal(key, shape=(k_real, samples))
+    fake_vars = jax.random.normal(key, shape=(k_fake, samples))
 
     redundant_vars = redundant_matrix @ (
         jax.random.normal(key, shape=(k_real, samples)) * beta_i + real_vars)
