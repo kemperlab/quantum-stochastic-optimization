@@ -21,7 +21,7 @@ class Logger():
         self.state: dict[str, Any] = metadata
         self.state['iterations'] = []
 
-        self.step_hooks: list[Callable[[Logger], None]] = []
+        self.step_hooks: "list[Callable[[Logger], None]]" = []
 
     def save_json(self, path: str | PathLike, overwrite: bool = False):
         """
@@ -58,7 +58,7 @@ class Logger():
     def __contains__(self, idx: Any) -> bool:
         return idx in self.state
 
-    def register_hook(self, callable: Callable[[Logger], None]):
+    def register_hook(self, callable: "Callable[[Logger], None]"):
         self.step_hooks.append(callable)
 
 

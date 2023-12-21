@@ -20,6 +20,7 @@ class Adam(Optimizer):
         beta_2: float = 0.999,
         eps: float = 1e-8,
         epsilon: float = 0.1,
+        n_hamiltonians: int = 1,
         key: Array | None = None,
         **kwargs,
     ) -> None:
@@ -33,6 +34,7 @@ class Adam(Optimizer):
             'beta_2': beta_2,
             'epsilon': epsilon,
             'eps': eps,
+            'n_hamiltonians': n_hamiltonians,
         }
 
         epsilon = self.hyperparams['epsilon']

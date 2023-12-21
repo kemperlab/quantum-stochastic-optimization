@@ -18,6 +18,7 @@ class SPSA(Optimizer):
         step_size: float = 0.01,
         repeat_grads: int = 20,
         epsilon: float = 0.1,
+        n_hamiltonians: int = 1,
         **kwargs,
     ) -> None:
         super().__init__(qnode, param_count, key)
@@ -29,6 +30,7 @@ class SPSA(Optimizer):
             'epsilon': epsilon,
             'step_size': step_size,
             'repeat_grads': repeat_grads,
+            'n_hamiltonians': n_hamiltonians,
         }
 
         self.log['hyperparams'] = self.hyperparams
