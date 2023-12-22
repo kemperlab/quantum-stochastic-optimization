@@ -8,3 +8,10 @@ OPTIMIZER_CATALOG: dict[str, type[Optimizer]] = {
     'spsa': SPSA,
     'tr': AdaptiveTrustRegion,
 }
+
+
+def get_optimizer(name: str) -> type[Optimizer]:
+    if name in OPTIMIZER_CATALOG:
+        return OPTIMIZER_CATALOG[name]
+    else:
+        raise ValueError(f"Could not find optimizer `{name}`")

@@ -163,4 +163,5 @@ cython_debug/
 .envrc
 
 # Data Clutter
-data/
+.data/
+plots/

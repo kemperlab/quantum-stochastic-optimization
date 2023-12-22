@@ -1,0 +1,42 @@
+{
+  "seed": 0,
+  "n_steps": 50,
+  "shots": 1024,
+  "n_hamiltonians": 1,
+  "split_shots": false,
+  "resample": false,
+  "resample_single": true,
+  "rho": 0.8,
+  "gamma_1": 1.1,
+  "gamma_2": 0.9,
+  "epsilon": 0.1,
+  "eps": 0.1,
+  "delta_0": 0.05,
+  "mu": 1000.0,
+  "alpha": 0.05,
+  "beta_1": 0.9,
+  "beta_2": 0.999,
+  "step_size": 0.05,
+  "data_file": "./data/adam/single_resample_1024/experiment_0.json",
+  "optimizer": "<class 'qso.optimizers.adam.Adam'>",
+  "n_atoms": 5,
+  "alpha_mu": 10.0,
+  "alpha_sigma": 1.5,
+  "func": "<function run at 0x7f68e93ba020>",
+  "iterations": [
+    {
+      "cost": -0.025544069707393646,
+      "gradient_norm": 0.8605848550796509,
+      "step_norm": 0.12084662169218063,
+      "shots_per_hamiltonian": 1024,
+      "samples": 1
+    },
+    {
+      "cost": -0.13348431885242462,
+      "gradient_norm": 1.096712589263916,
+      "step_norm": 0.11458637565374374,
+      "shots_per_hamiltonian": 1024,
+      "samples": 1
+    }
+  ]
+}

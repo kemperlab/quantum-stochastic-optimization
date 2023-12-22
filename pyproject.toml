@@ -16,7 +16,9 @@ dependencies = [
     "jax",
     "jaxlib",
     "python-rapidjson",
-    "pennylane-lightning"
+    "pennylane-lightning",
+    "matplotlib",
+    "matplotlib-backend-sixel",
 ]
 
 [project.optional-dependencies]

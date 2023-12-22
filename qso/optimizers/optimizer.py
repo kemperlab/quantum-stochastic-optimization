@@ -68,7 +68,7 @@ class Optimizer(ABC):
 
     def log_info(self) -> dict[str, Any]:
         return {
-            "params": self.params,
+            "params": self.params.tolist(),
             "cost": self.cost,
         }
 

@@ -1,5 +1,8 @@
-from jax import Array
+import pennylane as qml
+
+from jax import numpy as np, Array
 from jax.random import PRNGKey, choice
+from textwrap import indent
 
 
 def resample_data(feature_data: Array,
@@ -35,3 +38,18 @@ def resample_data(feature_data: Array,
     indices = choice(key, n, shape=(samples, ))
 
     return feature_data[indices], response_data[indices]
+
+
+class ProblemHamiltonian:
+
+    def __init__(self, hamiltonian: qml.Hamiltonian) -> None:
+        self.hamiltonian = hamiltonian
+
+    def __repr__(self) -> str:
+        hamiltonian = str(self.hamiltonian)
+        hamiltonian_array = qml.matrix(self.hamiltonian)
+        min_eigval = np.linalg.eigvalsh(np.asarray(hamiltonian_array)).min()
+        return ("Hamiltonian:\n"
+                f"{indent(hamiltonian, ' ' * 4)}\n"
+                "Minimum Eigenvalue:\n"
+                f"    {min_eigval}")

@@ -12,7 +12,7 @@ def random_linearly_correlated_data(
     k_real: int,
     k_fake: int,
     k_redundant: int,
-    beta_i: float | Array,
+    beta: float | Array,
     gamma: float,
     response_vector: np.ndarray,
     redundant_matrix: np.ndarray,
@@ -25,7 +25,7 @@ def random_linearly_correlated_data(
     - `k_real` (`int`): The number of real features to generate.
     - `k_fake` (`int`): The number of fake features to generate.
     - `k_redundant` (`int`): The number of redundant features to generate.
-    - `beta_i` (`float | jax.Array`): The noise associated with each real
+    - `beta` (`float | jax.Array`): The noise associated with each real
       variable, can be a scalar (`float`) is there is a constant noise level or
       a vector (`jax.Array`) with shape `(k_real,)` to specify a noise level
       for each real variable.
@@ -41,7 +41,7 @@ def random_linearly_correlated_data(
 
     Returns
     ---
-    - data (`jax.Array`): An array of shape `(k_real + k_redundant + k_fake, samples)`.
+    - data (`jax.Array`): An array of shape `(samples, k_real + k_redundant + k_fake)`.
     - response (`jax.Array`): An array of shape `(samples,)`.
 
     """
@@ -58,8 +58,8 @@ def random_linearly_correlated_data(
         f"non-negative integers, but found: {k_fake} and {k_redundant}, respectively."
     )
 
-    if isinstance(beta_i, np.ndarray):
-        check_ndarray("beta_i", beta_i, shape=(k_real, ))
+    if isinstance(beta, Array):
+        check_ndarray("beta", beta, shape=(k_real, ))
 
     check_ndarray("redundant_matrix",
                   redundant_matrix,
@@ -70,10 +70,10 @@ def random_linearly_correlated_data(
     fake_vars = jax.random.normal(key, shape=(k_fake, samples))
 
     redundant_vars = redundant_matrix @ (
-        jax.random.normal(key, shape=(k_real, samples)) * beta_i + real_vars)
+        jax.random.normal(key, shape=(k_real, samples)) * beta + real_vars)
     response_vars = response_vector @ (
-        jax.random.normal(key, shape=(k_real, samples)) * beta_i +
+        jax.random.normal(key, shape=(k_real, samples)) * beta +
         real_vars) + jax.random.normal(key, shape=(samples, )) * gamma
 
     return np.concatenate([real_vars, fake_vars, redundant_vars],
-                          axis=0), response_vars
+                          axis=0).T, response_vars

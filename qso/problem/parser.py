@@ -1,14 +1,8 @@
 from argparse import ArgumentParser
 
 from . import qchem, feature_selection
-from ..optimizers import AdaptiveTrustRegion, Optimizer, OPTIMIZER_CATALOG
-
-
-def get_optimizer(name: str) -> type[Optimizer]:
-    if name in OPTIMIZER_CATALOG:
-        return OPTIMIZER_CATALOG[name]
-    else:
-        raise ValueError(f"Could not find optimizer `{name}`")
+from .. import plot
+from ..optimizers import OPTIMIZER_CATALOG
 
 
 def get_main_parser() -> ArgumentParser:
@@ -44,6 +38,11 @@ def get_main_parser() -> ArgumentParser:
     parser.add_argument("--resample",
                         action="store_true",
                         help="Whether to resample Hamiltonians")
+
+    parser.add_argument("--resample_single",
+                        action="store_true",
+                        help="Whether to pick resample a new Hamiltonian at "
+                        "each step.")
 
     parser.add_argument("--rho",
                         type=float,
@@ -113,8 +112,8 @@ def get_main_parser() -> ArgumentParser:
                         help="The location to save logging data.")
 
     parser.add_argument("--optimizer",
-                        type=get_optimizer,
-                        default=AdaptiveTrustRegion,
+                        choices=OPTIMIZER_CATALOG.keys(),
+                        default='tr',
                         help="The algorithm to use for optimization")
 
     subparsers = parser.add_subparsers(required=True)
@@ -132,7 +131,12 @@ def get_main_parser() -> ArgumentParser:
         "introduces some unknown correlation matrix distribution.")
     feature_selection.get_parser(feature_selection_parser)
 
+    plot_parser = subparsers.add_parser("plot",
+                                        help="Helps plot experiment results")
+    plot.get_parser(plot_parser)
+
     qchem_parser.set_defaults(func=qchem.run)
     feature_selection_parser.set_defaults(func=feature_selection.run)
+    plot_parser.set_defaults(func=plot.run)
 
     return parser

@@ -14,7 +14,11 @@ from argparse import ArgumentParser, Namespace
 
 from . import QSOProblem
 from ..loggers import PrettyPrint
+from ..utils import ProblemHamiltonian
 from ..utils.ansatz import hamiltonian_ansatz
+
+N_LAYERS = 5
+TROTTER_STEPS = 5
 
 
 def potential_energy(orbital: Literal['s'], distance: float):
@@ -47,11 +51,7 @@ def tight_binding_hamiltonian(
     return qubit_observable(sentence)  # type: ignore
 
 
-def tight_binding_ansatz(
-    n_var: int,
-    n_layers: int = 5,
-    trotter_steps: int = 5,
-) -> tuple[int, Callable[[Array], None]]:
+def tight_binding_ansatz(n_var: int) -> tuple[int, Callable[[Array], None]]:
     x_hamiltonian = x_mixer(range(n_var))
 
     def qaoa_layer(times: Array, params: Array):
@@ -59,7 +59,7 @@ def tight_binding_ansatz(
             hamiltonian_ansatz(params, 'z', 'x', n_var) +
             hamiltonian_ansatz(params, 'z', 'y', n_var),
             times[0],
-            trotter_steps,
+            TROTTER_STEPS,
         )
         qml.CommutingEvolution(x_hamiltonian, times[1])
 
@@ -68,12 +68,12 @@ def tight_binding_ansatz(
             qml.PauliX(wire)
             qml.Hadamard(wire)
 
-        times = params[:2 * n_layers].reshape(n_layers, 2)
-        params = params[2 * n_layers:]
+        times = params[:2 * N_LAYERS].reshape(N_LAYERS, 2)
+        params = params[2 * N_LAYERS:]
 
-        qml.layer(qaoa_layer, n_layers, times, params=params)
+        qml.layer(qaoa_layer, N_LAYERS, times, params=params)
 
-    return 2 * n_layers + 2 * n_var - 1, state_circuit
+    return 2 * N_LAYERS + 2 * n_var - 1, state_circuit
 
 
 class TightBindingProblem(QSOProblem):
@@ -113,11 +113,20 @@ class TightBindingProblem(QSOProblem):
 
         return tight_binding_hamiltonian(self.n_atoms, self.orbitals, alpha)
 
+    def default_hamiltonian(self) -> qml.Hamiltonian:
+        alpha_mu, _ = self.alpha
+
+        return tight_binding_hamiltonian(self.n_atoms, self.orbitals, alpha_mu)
+
 
 def get_parser(parser: ArgumentParser):
     parser.add_argument("--n_atoms", type=int, default=5)
     parser.add_argument("--alpha_mu", type=float, default=10.)
     parser.add_argument("--alpha_sigma", type=float, default=0.1)
+
+    parser.add_argument("--print_hamiltonian",
+                        action="store_true",
+                        help="Just print Hamiltonian and exit.")
 
 
 def run(args: Namespace):
@@ -127,6 +136,16 @@ def run(args: Namespace):
     problem = TightBindingProblem(args.n_atoms, {'s'},
                                   alpha=(args.alpha_mu, args.alpha_sigma),
                                   key=problem_key)
+
+    if args.print_hamiltonian:
+        print(ProblemHamiltonian(problem.default_hamiltonian()))
+        print(
+            ProblemHamiltonian(
+                sum([
+                    problem.sample_hamiltonian()
+                    for _ in range(args.n_hamiltonians)
+                ]) / args.n_hamiltonians))  # type: ignore
+        exit(0)
 
     n_var = problem.n_var
     param_count, ansatz = tight_binding_ansatz(n_var)

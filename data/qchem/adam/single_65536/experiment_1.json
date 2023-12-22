@@ -1,0 +1,726 @@
+{
+  "seed": 1,
+  "n_steps": 100,
+  "shots": 65536,
+  "split_shots": false,
+  "resample": false,
+  "rho": 0.8,
+  "gamma_1": 1.1,
+  "gamma_2": 0.9,
+  "epsilon": 0.1,
+  "eps": 0.1,
+  "delta_0": 0.05,
+  "mu": 1000.0,
+  "alpha": 0.05,
+  "beta_1": 0.9,
+  "beta_2": 0.999,
+  "step_size": 0.05,
+  "data_file": "./data/adam/single/experiment_1.json",
+  "optimizer": "<class 'qso.optimizers.adam.Adam'>",
+  "n_atoms": 5,
+  "alpha_mu": 10.0,
+  "alpha_sigma": 1.5,
+  "func": "<function run at 0x7f10c11e2c00>",
+  "iterations": [
+    {
+      "cost": 0.07656209170818329,
+      "gradient_norm": 1.2748169898986816,
+      "step_norm": 0.1395217776298523,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.057478249073028564,
+      "gradient_norm": 1.0484519004821777,
+      "step_norm": 0.11997117847204208,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.1114332303404808,
+      "gradient_norm": 0.9042723774909973,
+      "step_norm": 0.09852328896522522,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.1252811998128891,
+      "gradient_norm": 0.8967881798744202,
+      "step_norm": 0.07886071503162384,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.13285468518733978,
+      "gradient_norm": 1.1184804439544678,
+      "step_norm": 0.06830555945634842,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.1562277227640152,
+      "gradient_norm": 1.2427843809127808,
+      "step_norm": 0.0666653960943222,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.19942602515220642,
+      "gradient_norm": 1.163968801498413,
+      "step_norm": 0.0697048157453537,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.2472689002752304,
+      "gradient_norm": 0.7631596326828003,
+      "step_norm": 0.07063910365104675,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.2679213583469391,
+      "gradient_norm": 0.7208784222602844,
+      "step_norm": 0.06461387872695923,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.2664477229118347,
+      "gradient_norm": 0.8453499674797058,
+      "step_norm": 0.05821589007973671,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.27002307772636414,
+      "gradient_norm": 0.8047170639038086,
+      "step_norm": 0.053305186331272125,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.2749893367290497,
+      "gradient_norm": 0.7608329057693481,
+      "step_norm": 0.050185419619083405,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.28246480226516724,
+      "gradient_norm": 0.704959511756897,
+      "step_norm": 0.04850054904818535,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.2919960021972656,
+      "gradient_norm": 0.6210262179374695,
+      "step_norm": 0.0468328595161438,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.2998329699039459,
+      "gradient_norm": 0.5295659899711609,
+      "step_norm": 0.04476957395672798,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.30466750264167786,
+      "gradient_norm": 0.5373167395591736,
+      "step_norm": 0.043256089091300964,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.3134419620037079,
+      "gradient_norm": 0.5727211236953735,
+      "step_norm": 0.04301399365067482,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.3232090473175049,
+      "gradient_norm": 0.515475332736969,
+      "step_norm": 0.042554255574941635,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.3274063467979431,
+      "gradient_norm": 0.4441182315349579,
+      "step_norm": 0.04133414849638939,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.3326912522315979,
+      "gradient_norm": 0.4710218608379364,
+      "step_norm": 0.040489912033081055,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.33975309133529663,
+      "gradient_norm": 0.5158717036247253,
+      "step_norm": 0.041450150310993195,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.3510489761829376,
+      "gradient_norm": 0.4981916546821594,
+      "step_norm": 0.04339912533760071,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.36044538021087646,
+      "gradient_norm": 0.4374999701976776,
+      "step_norm": 0.044693149626255035,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.37056174874305725,
+      "gradient_norm": 0.4848884642124176,
+      "step_norm": 0.04518791660666466,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.37815362215042114,
+      "gradient_norm": 0.5485482811927795,
+      "step_norm": 0.04636596515774727,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.3955126106739044,
+      "gradient_norm": 0.43843576312065125,
+      "step_norm": 0.04765571281313896,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4039224684238434,
+      "gradient_norm": 0.29180917143821716,
+      "step_norm": 0.04718055576086044,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4085823893547058,
+      "gradient_norm": 0.3571647107601166,
+      "step_norm": 0.04476381093263626,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4141031801700592,
+      "gradient_norm": 0.3943908214569092,
+      "step_norm": 0.04234442859888077,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4178960621356964,
+      "gradient_norm": 0.2717078626155853,
+      "step_norm": 0.03961384296417236,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.41902655363082886,
+      "gradient_norm": 0.3272618353366852,
+      "step_norm": 0.03602716699242592,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.41915830969810486,
+      "gradient_norm": 0.44146469235420227,
+      "step_norm": 0.03304808959364891,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4224548637866974,
+      "gradient_norm": 0.36429736018180847,
+      "step_norm": 0.031022612005472183,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4230583906173706,
+      "gradient_norm": 0.22098089754581451,
+      "step_norm": 0.02833780273795128,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.42111602425575256,
+      "gradient_norm": 0.29074394702911377,
+      "step_norm": 0.02544454112648964,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4229113459587097,
+      "gradient_norm": 0.3095768094062805,
+      "step_norm": 0.023659244179725647,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.42319321632385254,
+      "gradient_norm": 0.2199830710887909,
+      "step_norm": 0.021854106336832047,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4222526550292969,
+      "gradient_norm": 0.23403511941432953,
+      "step_norm": 0.019361330196261406,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.42236295342445374,
+      "gradient_norm": 0.29728248715400696,
+      "step_norm": 0.01792299747467041,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4251019060611725,
+      "gradient_norm": 0.24497896432876587,
+      "step_norm": 0.0178797896951437,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.42542359232902527,
+      "gradient_norm": 0.21053721010684967,
+      "step_norm": 0.017778193578124046,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4247710108757019,
+      "gradient_norm": 0.2496945708990097,
+      "step_norm": 0.01802734285593033,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.42997318506240845,
+      "gradient_norm": 0.20585446059703827,
+      "step_norm": 0.018473295494914055,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.429351270198822,
+      "gradient_norm": 0.1625370979309082,
+      "step_norm": 0.0179080031812191,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.42971891164779663,
+      "gradient_norm": 0.22087718546390533,
+      "step_norm": 0.0167668629437685,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4300559163093567,
+      "gradient_norm": 0.2245745062828064,
+      "step_norm": 0.016584284603595734,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43013250827789307,
+      "gradient_norm": 0.19199323654174805,
+      "step_norm": 0.016720116138458252,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43248850107192993,
+      "gradient_norm": 0.20580537617206573,
+      "step_norm": 0.016803696751594543,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4331594407558441,
+      "gradient_norm": 0.18479284644126892,
+      "step_norm": 0.01691235788166523,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4365234076976776,
+      "gradient_norm": 0.13417375087738037,
+      "step_norm": 0.016628891229629517,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43479853868484497,
+      "gradient_norm": 0.13760939240455627,
+      "step_norm": 0.015821872279047966,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4362783133983612,
+      "gradient_norm": 0.13438382744789124,
+      "step_norm": 0.014624395407736301,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4339897334575653,
+      "gradient_norm": 0.12774918973445892,
+      "step_norm": 0.013310668058693409,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43748846650123596,
+      "gradient_norm": 0.1423233151435852,
+      "step_norm": 0.012140663340687752,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4364008605480194,
+      "gradient_norm": 0.13419616222381592,
+      "step_norm": 0.011110564693808556,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4356900751590729,
+      "gradient_norm": 0.12333066761493683,
+      "step_norm": 0.010087097994983196,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43580344319343567,
+      "gradient_norm": 0.11567352712154388,
+      "step_norm": 0.009409521706402302,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4364805221557617,
+      "gradient_norm": 0.10143330693244934,
+      "step_norm": 0.008806138299405575,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43621090054512024,
+      "gradient_norm": 0.12660281360149384,
+      "step_norm": 0.008432338014245033,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43673786520957947,
+      "gradient_norm": 0.12131703644990921,
+      "step_norm": 0.008596077561378479,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4360179007053375,
+      "gradient_norm": 0.07370227575302124,
+      "step_norm": 0.008540908806025982,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4382880926132202,
+      "gradient_norm": 0.08339296281337738,
+      "step_norm": 0.008334211073815823,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43795108795166016,
+      "gradient_norm": 0.09201060980558395,
+      "step_norm": 0.008193494752049446,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43703198432922363,
+      "gradient_norm": 0.07124555110931396,
+      "step_norm": 0.00767395319417119,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.437892884016037,
+      "gradient_norm": 0.09263209253549576,
+      "step_norm": 0.007204675581306219,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43896517157554626,
+      "gradient_norm": 0.09116826206445694,
+      "step_norm": 0.0074247936718165874,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4373965561389923,
+      "gradient_norm": 0.057940419763326645,
+      "step_norm": 0.007234490942209959,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44013550877571106,
+      "gradient_norm": 0.08692486584186554,
+      "step_norm": 0.00686787161976099,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4400435984134674,
+      "gradient_norm": 0.08112248033285141,
+      "step_norm": 0.007012265734374523,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43780404329299927,
+      "gradient_norm": 0.05631071329116821,
+      "step_norm": 0.006769821513444185,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4376324713230133,
+      "gradient_norm": 0.0897902175784111,
+      "step_norm": 0.006763968616724014,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4387170076370239,
+      "gradient_norm": 0.06847763806581497,
+      "step_norm": 0.006917438004165888,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4395962953567505,
+      "gradient_norm": 0.05722101405262947,
+      "step_norm": 0.006650947965681553,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4386526942253113,
+      "gradient_norm": 0.07331600785255432,
+      "step_norm": 0.00661537516862154,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4411097764968872,
+      "gradient_norm": 0.04988617077469826,
+      "step_norm": 0.006475103087723255,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43915820121765137,
+      "gradient_norm": 0.0622430257499218,
+      "step_norm": 0.006384511943906546,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43935427069664,
+      "gradient_norm": 0.064130499958992,
+      "step_norm": 0.006476616486907005,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43974947929382324,
+      "gradient_norm": 0.04395101219415665,
+      "step_norm": 0.006484305951744318,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43955954909324646,
+      "gradient_norm": 0.04892469570040703,
+      "step_norm": 0.006327621638774872,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4415723979473114,
+      "gradient_norm": 0.05116640776395798,
+      "step_norm": 0.0062749204225838184,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4406226575374603,
+      "gradient_norm": 0.036138541996479034,
+      "step_norm": 0.0061908140778541565,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4393021762371063,
+      "gradient_norm": 0.04213538020849228,
+      "step_norm": 0.005942034535109997,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4417837858200073,
+      "gradient_norm": 0.045363087207078934,
+      "step_norm": 0.005873570684343576,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44083404541015625,
+      "gradient_norm": 0.031608402729034424,
+      "step_norm": 0.005864759907126427,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44023969769477844,
+      "gradient_norm": 0.043336547911167145,
+      "step_norm": 0.005656795110553503,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4414835572242737,
+      "gradient_norm": 0.040678612887859344,
+      "step_norm": 0.005610717460513115,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44122007489204407,
+      "gradient_norm": 0.03124173730611801,
+      "step_norm": 0.0054797702468931675,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4418603777885437,
+      "gradient_norm": 0.040234122425317764,
+      "step_norm": 0.005396188236773014,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43992412090301514,
+      "gradient_norm": 0.034929826855659485,
+      "step_norm": 0.005222969222813845,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.440582811832428,
+      "gradient_norm": 0.025179855525493622,
+      "step_norm": 0.0052164471708238125,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4427795112133026,
+      "gradient_norm": 0.03923352062702179,
+      "step_norm": 0.005245516542345285,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44232606887817383,
+      "gradient_norm": 0.02990827150642872,
+      "step_norm": 0.005224140826612711,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44097191095352173,
+      "gradient_norm": 0.029175855219364166,
+      "step_norm": 0.005111931823194027,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.43989962339401245,
+      "gradient_norm": 0.03711463510990143,
+      "step_norm": 0.0050409045070409775,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44154176115989685,
+      "gradient_norm": 0.0340014211833477,
+      "step_norm": 0.005179705563932657,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4401416480541229,
+      "gradient_norm": 0.034893397241830826,
+      "step_norm": 0.005134359002113342,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44156932830810547,
+      "gradient_norm": 0.04167012870311737,
+      "step_norm": 0.005401535425335169,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44136711955070496,
+      "gradient_norm": 0.031596049666404724,
+      "step_norm": 0.005423593334853649,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.44150805473327637,
+      "gradient_norm": 0.03382844477891922,
+      "step_norm": 0.005446747876703739,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    },
+    {
+      "cost": -0.4420350193977356,
+      "gradient_norm": 0.029020460322499275,
+      "step_norm": 0.005424944683909416,
+      "shots_per_hamiltonian": 65536,
+      "samples": 1
+    }
+  ]
+}

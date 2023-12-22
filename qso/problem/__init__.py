@@ -33,6 +33,19 @@ class QSOProblem(ABC):
         """
         ...
 
+    @abstractmethod
+    def default_hamiltonian(self) -> qml.Hamiltonian:
+        """
+        This method should sample the default Hamiltonian for the problem.
+        In the case of feature selection, for example, the Hamiltonian produced
+        by not bootstrapping and taking the full distribution.
+
+        Returns
+        ---
+        - hamiltonian (`pennylane.Hamiltonian`): A random Hamiltonian.
+        """
+        ...
+
     def get_hamiltonians(self, n: int) -> list[qml.Hamiltonian]:
         """
         Gets the first-`n` hamiltonians saved in the set of
@@ -71,11 +84,13 @@ class QSOProblem(ABC):
         (
             n_steps,
             resample,
+            resample_single,
             shots,
             split_shots,
         ) = itemgetter(
             "n_steps",
             "resample",
+            "resample_single",
             "shots",
             "split_shots",
         )(logger)
@@ -88,13 +103,22 @@ class QSOProblem(ABC):
             else:
                 step_shots = shots
 
-            hamiltonians = self.get_hamiltonians(samples)
+            if not resample:
+                if resample_single:
+                    hamiltonians = [self.sample_hamiltonian()]
+                else:
+                    hamiltonians = [self.default_hamiltonian()]
+            else:
+                hamiltonians = self.get_hamiltonians(samples)
+
             optimizer.step(hamiltonians, step_shots)
 
-            logger.log_step(optimizer.log_info()
-                            | {
-                                'shots_per_hamiltonian': step_shots,
-                                "samples": samples,
-                            })
+            logger.log_step(
+                optimizer.log_info()
+                | {
+                    "shots_per_hamiltonian": step_shots,
+                    "samples": samples,
+                    "params": optimizer.params.tolist(),
+                })
 
         return optimizer.cost, optimizer.params

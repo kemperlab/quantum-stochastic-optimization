@@ -14,15 +14,20 @@ from qso.loggers import PrettyPrint
 from . import QSOProblem
 from ..data.feature_selection import random_linearly_correlated_data
 from ..optimizers.trust_region import AdaptiveTrustRegion
-from ..utils import resample_data
+from ..utils import resample_data, ProblemHamiltonian
 from ..utils.validation import check_ndarray
 from ..utils.ansatz import hamiltonian_ansatz
+
+N_LAYERS = 5
+TROTTER_STEPS = 5
 
 
 def objective_matrix(feature_data: Array,
                      response_data: Array,
                      alpha: float = 0.5) -> Array:
-    pre_objective = np.corrcoef(feature_data, response_data, rowvar=False)
+    pre_objective = np.corrcoef(feature_data,
+                                response_data[:, None],
+                                rowvar=False)
     objective_body = np.abs(pre_objective[:-1, :-1]) * (1. - alpha)
     objective_body -= alpha * np.diagflat(np.abs(pre_objective[-1, :-1]))
 
@@ -51,17 +56,14 @@ def qubo_hamiltonian(objective: Array) -> qml.Hamiltonian:
 
 
 def feature_selection_ansatz(
-    n_var: int,
-    n_layers: int = 5,
-    trotter_steps: int = 5,
-) -> tuple[int, Callable[[Array], None]]:
+        n_var: int) -> tuple[int, Callable[[Array], None]]:
     x_hamiltonian = x_mixer(range(n_var))
 
     def qaoa_layer(times: Array, params: Array):
         qml.ApproxTimeEvolution(
             hamiltonian_ansatz(params, 'z', 'z', n_var),
             times[0],
-            trotter_steps,
+            TROTTER_STEPS,
         )
         qml.CommutingEvolution(x_hamiltonian, times[1])
 
@@ -70,12 +72,12 @@ def feature_selection_ansatz(
             qml.PauliX(wire)
             qml.Hadamard(wire)
 
-        times = params[:2 * n_layers].reshape(n_layers, 2)
-        params = params[2 * n_layers:]
+        times = params[:2 * N_LAYERS].reshape(N_LAYERS, 2)
+        params = params[2 * N_LAYERS:]
 
-        qml.layer(qaoa_layer, n_layers, times, params=params)
+        qml.layer(qaoa_layer, N_LAYERS, times, params=params)
 
-    return 2 * n_layers + 2 * n_var - 1, state_circuit
+    return 2 * N_LAYERS + 2 * n_var - 1, state_circuit
 
 
 class FeatureSelectionProblem(QSOProblem):
@@ -125,6 +127,12 @@ class FeatureSelectionProblem(QSOProblem):
                                      alpha=self.alpha)
         return qubo_hamiltonian(objective)
 
+    def default_hamiltonian(self) -> qml.Hamiltonian:
+        objective = objective_matrix(self.feature_data,
+                                     self.response_data,
+                                     alpha=self.alpha)
+        return qubo_hamiltonian(objective)
+
 
 def get_parser(parser: ArgumentParser):
     parser.add_argument("--k_real", type=int, default=2)
@@ -132,11 +140,16 @@ def get_parser(parser: ArgumentParser):
     parser.add_argument("--k_redundant", type=int, default=2)
 
     parser.add_argument("--samples", type=int, default=1024)
-    parser.add_argument("--betas", nargs='+', type=float, default=[])
+    parser.add_argument("--betas", nargs='+', type=float, default=[0.05])
+    parser.add_argument("--gamma", type=float, default=0.05)
 
     parser.add_argument("--data_description", type=str, default=None)
 
     parser.add_argument("--alpha", type=float, default=0.5)
+
+    parser.add_argument("--print_hamiltonian",
+                        action="store_true",
+                        help="Just print Hamiltonian and exit.")
 
 
 def run(args: Namespace):
@@ -156,13 +169,18 @@ def run(args: Namespace):
                                              shape=(args.k_redundant,
                                                     args.k_real))
 
+    if n_var > 1 and len(args.betas) > 1:
+        betas = np.array(args.betas)
+    else:
+        betas = args.betas[0]
+
     key, new_data_key, problem_key, optimizer_key = jax.random.split(key, 4)
     feature_data, response_data = random_linearly_correlated_data(
         args.samples,
         args.k_real,
         args.k_fake,
         args.k_redundant,
-        args.betas if n_var > 1 else args.betas[0],
+        betas,
         args.gamma,
         response_vector=response_vector,
         redundant_matrix=redundant_matrix,
@@ -173,6 +191,16 @@ def run(args: Namespace):
                                       response_data,
                                       alpha=args.alpha,
                                       key=problem_key)
+
+    if args.print_hamiltonian:
+        print(ProblemHamiltonian(problem.default_hamiltonian()))
+        print(
+            ProblemHamiltonian(
+                sum([
+                    problem.sample_hamiltonian()
+                    for _ in range(args.n_hamiltonians)
+                ]) / args.n_hamiltonians))  # type: ignore
+        exit(0)
 
     param_count, ansatz = feature_selection_ansatz(n_var)
     qdev = qml.device('default.qubit')
