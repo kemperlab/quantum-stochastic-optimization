@@ -11,6 +11,7 @@ from typing import Callable, Literal
 
 from .runs import ExperimentRun
 from ..problem.qchem import TightBindingProblem, tight_binding_ansatz
+from ..utils import get_qdev
 
 Circuit = Callable[[Array], Array]
 
@@ -113,7 +114,7 @@ def run(args: Namespace):
         case _:
             raise ValueError("Not a valid problem")
 
-    qdev = qml.device('lightning.qubit', wires=5)
+    qdev = get_qdev(5)
 
     def cost_circuit(params: Array):
         circuit(params)

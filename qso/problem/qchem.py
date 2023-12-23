@@ -14,7 +14,7 @@ from argparse import ArgumentParser, Namespace
 
 from . import QSOProblem
 from ..loggers import PrettyPrint
-from ..utils import ProblemHamiltonian
+from ..utils import ProblemHamiltonian, get_qdev
 from ..utils.ansatz import hamiltonian_ansatz
 
 N_LAYERS = 5
@@ -150,15 +150,7 @@ def run(args: Namespace):
     n_var = problem.n_var
     param_count, ansatz = tight_binding_ansatz(n_var)
 
-    os.environ['OPENBLAS_NUM_THREADS'] = '8'
-    os.environ['OMP_NUM_THREADS'] = '8'
-    os.environ['MKL_NUM_THREADS'] = '8'
-    qdev: qml.QubitDevice = qml.device(
-        "default.qubit",
-        wires=n_var,
-        shots=args.shots,
-        max_workers=os.cpu_count() // 8,  # type: ignore
-    )  # type: ignore
+    qdev = get_qdev(n_var)
 
     @qml.qnode(qdev, diff_method="best")
     def single_cost_circuit(params: Array, hamiltonian: qml.Hamiltonian):

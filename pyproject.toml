@@ -19,6 +19,7 @@ dependencies = [
     "pennylane-lightning",
     "matplotlib",
     "matplotlib-backend-sixel",
+    "types-tqdm",
 ]
 
 [project.optional-dependencies]

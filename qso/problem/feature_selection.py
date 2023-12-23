@@ -14,7 +14,7 @@ from qso.loggers import PrettyPrint
 from . import QSOProblem
 from ..data.feature_selection import random_linearly_correlated_data
 from ..optimizers.trust_region import AdaptiveTrustRegion
-from ..utils import resample_data, ProblemHamiltonian
+from ..utils import get_qdev, resample_data, ProblemHamiltonian
 from ..utils.validation import check_ndarray
 from ..utils.ansatz import hamiltonian_ansatz
 
@@ -203,7 +203,7 @@ def run(args: Namespace):
         exit(0)
 
     param_count, ansatz = feature_selection_ansatz(n_var)
-    qdev = qml.device('default.qubit')
+    qdev = get_qdev(n_var)
 
     @qml.qnode(qdev)
     def cost_circuit(params: Array, hamiltonian: qml.Hamiltonian):

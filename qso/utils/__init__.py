@@ -1,3 +1,4 @@
+import os
 import pennylane as qml
 
 from jax import numpy as np, Array
@@ -38,6 +39,34 @@ def resample_data(feature_data: Array,
     indices = choice(key, n, shape=(samples, ))
 
     return feature_data[indices], response_data[indices]
+
+
+def get_qdev(n_var: int) -> qml.QubitDevice:
+    cpu_count = os.cpu_count()
+    cpu_count = 1 if cpu_count is None else cpu_count
+
+    if cpu_count <= 4:
+        threads = ""
+        workers = 1
+    elif cpu_count <= 16:
+        threads = "4"
+        workers = cpu_count // 4
+    elif cpu_count <= 64:
+        threads = "8"
+        workers = cpu_count // 8
+    else:
+        workers = 8
+        threads = str(cpu_count // 8)
+
+    os.environ['OPENBLAS_NUM_THREADS'] = threads
+    os.environ['OMP_NUM_THREADS'] = threads
+    os.environ['MKL_NUM_THREADS'] = threads
+
+    qdev: qml.QubitDevice = qml.device("default.qubit",
+                                       wires=n_var,
+                                       max_workers=workers)  # type: ignore
+
+    return qdev
 
 
 class ProblemHamiltonian:
