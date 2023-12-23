@@ -216,11 +216,23 @@ def run(args: Namespace):
     param_count, ansatz = feature_selection_ansatz(n_var)
     qdev = get_qdev(n_var)
 
-    @qml.qnode(qdev)
-    def cost_circuit(params: Array, hamiltonian: qml.Hamiltonian):
+    @qml.qnode(qdev, diff_method="best")
+    def single_cost_circuit(params: Array, hamiltonian: qml.Hamiltonian):
         ansatz(params)
 
         return qml.expval(hamiltonian)
+
+    def cost_circuit(
+        params: Array,
+        hamiltonians: list[qml.Hamiltonian],
+        shots_per_hamiltonian: int,
+    ):
+        return [
+            single_cost_circuit(params,
+                                hamiltonian,
+                                shots=shots_per_hamiltonian)
+            for hamiltonian in hamiltonians
+        ]
 
     optimizer = AdaptiveTrustRegion(cost_circuit,
                                     param_count,
@@ -228,4 +240,6 @@ def run(args: Namespace):
                                     key=optimizer_key)
 
     logger = PrettyPrint(**vars(args))
+    logger.register_hook(lambda x: x.save_json(args.data_file, overwrite=True))
+
     problem.solve_problem(optimizer, logger)
