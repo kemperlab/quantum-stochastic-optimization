@@ -11,6 +11,7 @@ from typing import Callable, Literal
 
 from .runs import ExperimentRun
 from ..problem.qchem import TightBindingProblem, tight_binding_ansatz
+from ..problem.feature_selection import FeatureSelectionProblem, feature_selection_ansatz
 from ..utils import get_qdev
 
 Circuit = Callable[[Array], Array]
@@ -100,33 +101,41 @@ def run(args: Namespace):
         for folder in folders
     }
 
-    match problem:
-        case 'qchem':
-            _, circuit = tight_binding_ansatz(5)
-            tb_problem = TightBindingProblem(5, {'s'}, (10, 1.5))
-            exp_hamiltonian = sum([
-                tb_problem.sample_hamiltonian() for _ in range(n_hamiltonians)
-            ]) / n_hamiltonians
+    if args.true_cost:
+        match problem:
+            case 'qchem':
+                _, circuit = tight_binding_ansatz(5)
+                tb_problem = TightBindingProblem(5, {'s'}, (10, 1.5))
+                exp_hamiltonian = sum([
+                    tb_problem.sample_hamiltonian()
+                    for _ in range(n_hamiltonians)
+                ]) / n_hamiltonians
 
-        case 'feature_selection':
-            exit()
+            case 'feature_selection':
+                _, circuit = feature_selection_ansatz(6)
+                fs_problem = FeatureSelectionProblem(None, None, alpha=None)
+                exp_hamiltonian = sum([
+                    fs_problem.sample_hamiltonian()
+                    for _ in range(n_hamiltonians)
+                ]) / n_hamiltonians
 
-        case _:
-            raise ValueError("Not a valid problem")
+            case _:
+                raise ValueError("Not a valid problem")
 
-    qdev = get_qdev(5)
+        qdev = get_qdev(5)
 
-    def cost_circuit(params: Array):
-        circuit(params)
-        return qml.expval(exp_hamiltonian)
+        def cost_circuit(params: Array):
+            circuit(params)
+            return qml.expval(exp_hamiltonian)
 
-    cost_circuit_qnode: qml.QNode | None = qml.QNode(cost_circuit, qdev)
+        cost_circuit_qnode = qml.QNode(cost_circuit, qdev)
+
+    else:
+        exp_hamiltonian = None
+        cost_circuit_qnode = None
 
     figure = plt.figure()
     ax = figure.add_subplot(1, 1, 1)
-
-    if not args.true_cost:
-        cost_circuit_qnode = None
 
     match plot_type:
         case 'confidence':
@@ -136,9 +145,11 @@ def run(args: Namespace):
     ax.set_ylabel(f"Cost")
     ax.set_xlabel(f"{x_axis}")
 
-    ground_cost = np.linalg.eigvalsh(qml.matrix(exp_hamiltonian)).min().item()
-    ax.axhline(ground_cost, color='black', linestyle='--')
-    ax.set_ylim(bottom=ground_cost - 0.1, top=None)
+    if exp_hamiltonian is not None:
+        ground_cost = np.linalg.eigvalsh(
+            qml.matrix(exp_hamiltonian)).min().item()
+        ax.axhline(ground_cost, color='black', linestyle='--')
+        ax.set_ylim(bottom=ground_cost - 0.1, top=None)
 
     ax.grid(True)
     ax.legend()
