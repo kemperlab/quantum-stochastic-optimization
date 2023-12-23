@@ -31,6 +31,7 @@ def get_parser(parser: ArgumentParser):
     parser.add_argument('--n_hamiltonians', type=int, default=100)
     parser.add_argument('--no-show', action='store_false', dest='show')
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--true-cost', action='store_true')
     parser.add_argument('--x-axis',
                         choices=['iterations', 'hamiltonians'],
                         type=str,
@@ -114,17 +115,21 @@ def run(args: Namespace):
 
     qdev = qml.device('lightning.qubit', wires=5)
 
-    @qml.qnode(qdev)
     def cost_circuit(params: Array):
         circuit(params)
         return qml.expval(exp_hamiltonian)
 
+    cost_circuit_qnode: qml.QNode | None = qml.QNode(cost_circuit, qdev)
+
     figure = plt.figure()
     ax = figure.add_subplot(1, 1, 1)
 
+    if not args.true_cost:
+        cost_circuit_qnode = None
+
     match plot_type:
         case 'confidence':
-            confidence_plot(runs, x_axis, ax, circuit=cost_circuit)
+            confidence_plot(runs, x_axis, ax, circuit=cost_circuit_qnode)
 
     ax.set_title(f"{plot_type} ({problem})")
     ax.set_ylabel(f"Cost")
@@ -133,6 +138,8 @@ def run(args: Namespace):
     ground_cost = np.linalg.eigvalsh(qml.matrix(exp_hamiltonian)).min().item()
     ax.axhline(ground_cost, color='black', linestyle='--')
     ax.set_ylim(bottom=ground_cost - 0.1, top=None)
+
+    ax.grid(True)
     ax.legend()
 
     if args.output is not None:
