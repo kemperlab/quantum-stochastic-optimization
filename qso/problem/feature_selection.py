@@ -144,6 +144,7 @@ def get_parser(parser: ArgumentParser):
     parser.add_argument("--gamma", type=float, default=0.05)
 
     parser.add_argument("--data_description", type=str, default=None)
+    parser.add_argument("--data_description_file", type=str, default=None)
 
     parser.add_argument("--alpha", type=float, default=0.5)
 
@@ -157,11 +158,21 @@ def run(args: Namespace):
 
     n_var = args.k_real + args.k_fake + args.k_redundant
 
-    if args.data_description is not None:
+    if args.data_description_file is not None:
+        with open(args.data_description_file, 'r') as f:
+            data_str = f.read()
+
+        data = np.fromstring(data_str, sep=',')
+        response_vector = data[:args.k_real]
+        redundant_matrix = data[args.k_real:].reshape(args.k_redundant,
+                                                      args.k_real)
+
+    elif args.data_description is not None:
         data = np.fromstring(args.data_description, sep=',')
         response_vector = data[:args.k_real]
         redundant_matrix = data[args.k_real:].reshape(args.k_redundant,
                                                       args.k_real)
+
     else:
         key, resp_key, redund_key = jax.random.split(key, 3)
         response_vector = jax.random.normal(resp_key, shape=(args.k_real, ))
