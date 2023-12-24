@@ -234,10 +234,10 @@ def run(args: Namespace):
             for hamiltonian in hamiltonians
         ]
 
-    optimizer = AdaptiveTrustRegion(cost_circuit,
-                                    param_count,
-                                    **vars(args),
-                                    key=optimizer_key)
+    optimizer = args.optimizer(cost_circuit,
+                               param_count,
+                               **vars(args),
+                               key=optimizer_key)
 
     logger = PrettyPrint(**vars(args))
     logger.register_hook(lambda x: x.save_json(args.data_file, overwrite=True))
