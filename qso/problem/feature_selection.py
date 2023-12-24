@@ -139,7 +139,7 @@ def get_parser(parser: ArgumentParser):
     parser.add_argument("--k_fake", type=int, default=2)
     parser.add_argument("--k_redundant", type=int, default=2)
 
-    parser.add_argument("--samples", type=int, default=256)
+    parser.add_argument("--samples", type=int, default=512)
     parser.add_argument("--betas", nargs='+', type=float, default=[0.05])
     parser.add_argument("--gamma", type=float, default=0.05)
 
