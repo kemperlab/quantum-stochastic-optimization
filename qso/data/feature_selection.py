@@ -15,7 +15,7 @@ def random_linearly_correlated_data(
     beta: float | Array,
     gamma: float,
     response_vector: np.ndarray,
-    redundant_matrix: np.ndarray,
+    redundancy_matrix: np.ndarray,
     key: Array | None = None,
 ):
     """
@@ -30,7 +30,7 @@ def random_linearly_correlated_data(
       a vector (`jax.Array`) with shape `(k_real,)` to specify a noise level
       for each real variable.
     - `gamma` (`float`): The amount of noise in the response variable.
-    - `redundant_matrix` (`jax.Array`): The matrix that specifies the
+    - `redundancy_matrix` (`jax.Array`): The matrix that specifies the
       correlation betweeen the real variables and the redundant variables. This
       array is expected to have shape `(k_redundant, k_real)`.
     - `response_vector` (`jax.Array`): The vector that specifies the
@@ -61,15 +61,15 @@ def random_linearly_correlated_data(
     if isinstance(beta, Array):
         check_ndarray("beta", beta, shape=(k_real, ))
 
-    check_ndarray("redundant_matrix",
-                  redundant_matrix,
+    check_ndarray("redundancy_matrix",
+                  redundancy_matrix,
                   shape=(k_redundant, k_real))
     check_ndarray("response_vector", response_vector, shape=(k_real, ))
 
     real_vars = jax.random.normal(key, shape=(k_real, samples))
     fake_vars = jax.random.normal(key, shape=(k_fake, samples))
 
-    redundant_vars = redundant_matrix @ (
+    redundant_vars = redundancy_matrix @ (
         jax.random.normal(key, shape=(k_real, samples)) * beta + real_vars)
     response_vars = response_vector @ (
         jax.random.normal(key, shape=(k_real, samples)) * beta +

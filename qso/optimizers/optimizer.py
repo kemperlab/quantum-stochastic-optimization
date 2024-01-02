@@ -2,10 +2,13 @@ from typing import Any, Callable
 
 import pennylane as qml
 import jax
+import math
 
 from jax import numpy as np, Array
 from jax.random import PRNGKey
 from abc import ABC, abstractmethod
+
+from ..runs import ResamplingParameters
 
 
 def mean(vals: list[float]) -> float:
@@ -13,6 +16,7 @@ def mean(vals: list[float]) -> float:
 
 
 Circuit = Callable[[Array, list[qml.Hamiltonian], int], list[Array]]
+StateCircuit = Callable[[Array], None]
 
 
 class Optimizer(ABC):
@@ -21,13 +25,16 @@ class Optimizer(ABC):
     spontaneously.
     """
 
+    params: Array
+    key: Array
+
     def __init__(
         self,
-        qnode: Circuit,
+        circuit: Circuit,
         param_count: int,
         key: Array | None,
     ) -> None:
-        self.circuit = qnode
+        self.circuit = circuit
         self.param_count = param_count
         self.key = key if key is not None else PRNGKey(0)
 
@@ -36,8 +43,6 @@ class Optimizer(ABC):
         self.cost = np.inf
 
         self.iterations = 0
-
-        self.log: dict[str, Any] = {"iterations": []}
 
     def _evaluate_cost(
         self,
@@ -72,14 +77,27 @@ class Optimizer(ABC):
             "cost": self.cost,
         }
 
-    @abstractmethod
-    def sample_count(self) -> int:
+    def sample_count(self, resampling_params: ResamplingParameters) -> int:
         """
         Gets the number of samples requested for the next step.
+
+        Parameters
+        ---
+        - `resampling_params` (`qso.runs.ResamplingParameters`): The parameters
+          that define how to resample from the distribution.
 
         Returns
         ---
         - `sample_count` (`int`): The number of requested samples.
         """
 
-        ...
+        if resampling_params.resample:
+            epsilon = resampling_params.epsilon
+            hamiltonians = resampling_params.hamiltonians
+
+            return math.ceil(
+                hamiltonians *
+                math.log2(max(3., self.iterations))**(1 + epsilon))
+
+        else:
+            return 1

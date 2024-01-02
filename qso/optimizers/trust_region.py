@@ -1,4 +1,3 @@
-from operator import itemgetter
 from typing import Any
 
 import pennylane as qml
@@ -6,62 +5,55 @@ import math
 import jax
 
 from jax import numpy as np, Array
+from serde import serde
+from dataclasses import dataclass
 
+from ..runs import ResamplingParameters
 from .optimizer import Optimizer, Circuit
 
 
-class AdaptiveTrustRegion(Optimizer):
+@serde
+@dataclass
+class TrustRegionParameters:
+    delta_0: float
+    rho: float
+    gamma_1: float
+    gamma_2: float
+    mu: float
+
+
+class TrustRegion(Optimizer):
 
     def __init__(
         self,
         qnode: Circuit,
         param_count: int,
-        rho: float = 0.8,
-        gamma_1: float = 1.1,
-        gamma_2: float = 0.9,
-        epsilon: float = 0.1,
-        mu: float = 1000.,
-        delta_0: float = 0.2,
-        n_hamiltonians: int = 1,
+        trust_region_params: TrustRegionParameters,
         key: Array | None = None,
-        **kwargs,
     ) -> None:
         super().__init__(qnode, param_count, key)
 
         self.jacobian: Circuit = jax.jacrev(self.circuit, argnums=0)
 
-        self.hyperparams = {
-            'rho': rho,
-            'gamma_1': gamma_1,
-            'gamma_2': gamma_2,
-            'epsilon': epsilon,
-            'delta_0': delta_0,
-            'mu': mu,
-            'n_hamiltonians': n_hamiltonians,
-        }
-
-        self.delta_t = delta_0
+        self.hyperparams = trust_region_params
+        self.delta_t = trust_region_params.delta_0
         self.sigma_t2 = 0.
-
-        self.log["hyperparams"] = self.hyperparams
 
     def optimizer_step(
         self,
         hamiltonians: list[qml.Hamiltonian],
         shots_per_hamiltonian: int,
     ):
-        rho, gamma_1, gamma_2, mu = itemgetter(
-            'rho',
-            'gamma_1',
-            'gamma_2',
-            'mu',
-        )(self.hyperparams)
+        rho = self.hyperparams.rho
+        gamma_1 = self.hyperparams.gamma_1
+        gamma_2 = self.hyperparams.gamma_2
+        mu = self.hyperparams.mu
 
         jacobians = np.array(
             self.jacobian(self.params, hamiltonians, shots_per_hamiltonian))
 
         mean_gradient = jacobians.mean(axis=0)
-        mean_gradient_norm = np.linalg.norm(mean_gradient)
+        mean_gradient_norm: float = np.linalg.norm(mean_gradient).item()
 
         mean_hessian = np.eye(self.param_count)
 
@@ -131,10 +123,10 @@ class AdaptiveTrustRegion(Optimizer):
             ((self.cost - self.new_cost) / (self.cost - self.predicted_cost)),
         }
 
-    def sample_count(self) -> int:
-        epsilon = self.hyperparams['epsilon']
-        n_hamiltonians = self.hyperparams['n_hamiltonians']
+    def sample_count(self, resampling_params: ResamplingParameters) -> int:
+        epsilon = resampling_params.epsilon
+        hamiltonians = resampling_params.hamiltonians
 
-        return math.ceil(n_hamiltonians *
+        return math.ceil(hamiltonians *
                          math.log2(max(3., self.iterations))**(1 + epsilon) *
                          max(1., self.sigma_t2 / self.delta_t))

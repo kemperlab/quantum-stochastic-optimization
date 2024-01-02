@@ -1,17 +1,19 @@
 from ast import literal_eval
 from jax import numpy as np, Array
 from pathlib import Path
-from rapidjson import load
+from orjson import loads
 from types import SimpleNamespace
 from typing import Any, Literal
 
 
 class ExperimentRun:
     iterations: list[SimpleNamespace]
+    run_number: int
+    log_file: str
 
     def __init__(self, run_path: Path) -> None:
-        with run_path.open() as f:
-            data: dict[str, Any] = load(f)
+        with run_path.open('rb') as f:
+            data: dict[str, Any] = loads(f.read())
 
         for key, var in data.items():
             if key == 'iterations':

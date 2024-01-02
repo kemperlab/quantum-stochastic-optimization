@@ -1,8 +1,11 @@
 import os
+import jax
 import pennylane as qml
 
 from jax import numpy as np, Array
 from jax.random import PRNGKey, choice
+from serde import serde
+from dataclasses import dataclass
 from textwrap import indent
 
 
@@ -82,3 +85,19 @@ class ProblemHamiltonian:
                 f"{indent(hamiltonian, ' ' * 4)}\n"
                 "Minimum Eigenvalue:\n"
                 f"    {min_eigval}")
+
+
+@serde
+@dataclass
+class NormalDistribution:
+    mu: float
+    sigma: float
+
+    def sample(self, key: Array) -> float:
+        return self.mu * jax.random.normal(key).item() + self.sigma
+
+    def expected(self) -> float:
+        return self.mu
+
+
+Distribution = NormalDistribution

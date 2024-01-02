@@ -15,11 +15,12 @@ dependencies = [
     "numpy",
     "jax",
     "jaxlib",
-    "python-rapidjson",
+    "orjson",
     "pennylane-lightning",
     "matplotlib",
     "matplotlib-backend-sixel",
     "types-tqdm",
+    "pyserde",
 ]
 
 [project.optional-dependencies]
@@ -38,8 +39,4 @@ exclude = ["data"]
 
 [[tool.mypy.overrides]]
 module = "pennylane.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "rapidjson.*"
 ignore_missing_imports = true

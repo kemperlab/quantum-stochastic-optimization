@@ -2,7 +2,7 @@ from os import PathLike
 import pathlib
 
 from pprint import pformat
-from rapidjson import dump
+from orjson import dumps
 from tqdm import tqdm
 from typing import Any, Callable
 
@@ -37,8 +37,8 @@ class Logger():
         if pathlib.Path(path).exists() and not overwrite:
             raise FileExistsError(path)
 
-        with open(path, 'w') as f:
-            dump(self.state, f, default=repr)
+        with open(path, 'wb') as f:
+            f.write(dumps(self.state, default=repr))
 
     def log_step(self, state: dict[str, Any], **kwargs):
         self.state['iterations'].append(state | kwargs)

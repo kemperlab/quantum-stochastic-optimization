@@ -1,49 +1,42 @@
 from typing import Any
 
 import pennylane as qml
-import math
 import jax
 
 from jax import numpy as np, Array
+from serde import serde
+from dataclasses import dataclass
 
 from .optimizer import Optimizer, Circuit
+
+
+@serde
+@dataclass
+class AdamParameters:
+    alpha: float = 0.01
+    beta_1: float = 0.9
+    beta_2: float = 0.999
+    epsilon: float = 1e-8
 
 
 class Adam(Optimizer):
 
     def __init__(
         self,
-        qnode: Circuit,
+        circuit: Circuit,
         param_count: int,
-        alpha: float = 1e-2,
-        beta_1: float = 0.9,
-        beta_2: float = 0.999,
-        eps: float = 1e-8,
-        epsilon: float = 0.1,
-        n_hamiltonians: int = 1,
+        adam_params: AdamParameters,
         key: Array | None = None,
-        **kwargs,
     ) -> None:
-        super().__init__(qnode, param_count, key)
+        super().__init__(circuit, param_count, key)
 
         self.jacobian: Circuit = jax.jacobian(self.circuit, argnums=0)
-
-        self.hyperparams: dict[str, float] = {
-            'alpha': alpha,
-            'beta_1': beta_1,
-            'beta_2': beta_2,
-            'epsilon': epsilon,
-            'eps': eps,
-            'n_hamiltonians': n_hamiltonians,
-        }
-
-        epsilon = self.hyperparams['epsilon']
+        self.hyperparams = adam_params
 
         self.m = np.zeros_like(self.params)
         self.v = np.zeros_like(self.params)
 
         self.grad_norm = 0.
-        self.log["hyperparams"] = self.hyperparams
 
         self.iters = 0
 
@@ -54,10 +47,10 @@ class Adam(Optimizer):
     ):
         self.iters += 1
 
-        alpha = self.hyperparams['alpha']
-        beta_1 = self.hyperparams['beta_1']
-        beta_2 = self.hyperparams['beta_2']
-        epsilon = self.hyperparams['epsilon']
+        alpha = self.hyperparams.alpha
+        beta_1 = self.hyperparams.beta_1
+        beta_2 = self.hyperparams.beta_2
+        epsilon = self.hyperparams.epsilon
 
         jacobians = np.array(
             self.jacobian(self.params, hamiltonians, shots_per_hamiltonian))
@@ -84,10 +77,3 @@ class Adam(Optimizer):
             "gradient_norm": self.grad_norm,
             "step_norm": self.step_norm,
         }
-
-    def sample_count(self) -> int:
-        epsilon = self.hyperparams['epsilon']
-        n_hamiltonians = self.hyperparams['n_hamiltonians']
-
-        return math.ceil(n_hamiltonians *
-                         math.log2(max(3., self.iterations))**(1 + epsilon))

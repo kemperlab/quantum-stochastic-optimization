@@ -1,39 +1,34 @@
 import pennylane as qml
 import jax
-import math
 
 from typing import Any
 from jax import numpy as np, Array
+from serde import serde
+from dataclasses import dataclass
 
 from .optimizer import Optimizer, Circuit
 
 
-class SPSA(Optimizer):
+@serde
+@dataclass
+class SpsaParameters:
+    step_size: float = 0.01
+    repeat_grads: int = 20
+
+
+class Spsa(Optimizer):
 
     def __init__(
         self,
-        qnode: Circuit,
+        circuit: Circuit,
         param_count: int,
+        spsa_params: SpsaParameters,
         key: Array | None = None,
-        step_size: float = 0.01,
-        repeat_grads: int = 20,
-        epsilon: float = 0.1,
-        n_hamiltonians: int = 1,
-        **kwargs,
     ) -> None:
-        super().__init__(qnode, param_count, key)
+        super().__init__(circuit, param_count, key)
 
-        self.step_size = step_size
-        self.repeat_grads = repeat_grads
-
-        self.hyperparams = {
-            'epsilon': epsilon,
-            'step_size': step_size,
-            'repeat_grads': repeat_grads,
-            'n_hamiltonians': n_hamiltonians,
-        }
-
-        self.log['hyperparams'] = self.hyperparams
+        self.hyperparams = spsa_params
+        self.step_size = spsa_params.step_size
 
     def optimizer_step(
         self,
@@ -42,7 +37,7 @@ class SPSA(Optimizer):
     ):
         gradient = np.zeros_like(self.params)
 
-        for _ in range(self.repeat_grads):
+        for _ in range(self.hyperparams.repeat_grads):
             self.key, subkey = jax.random.split(self.key)
             perturbation = 2. * jax.random.bernoulli(
                 subkey, shape=(self.param_count, )) - 1.
@@ -58,9 +53,9 @@ class SPSA(Optimizer):
             ))
 
             gradient += dcosts / (2 * perturbation * self.step_size *
-                                  self.repeat_grads)
+                                  self.hyperparams.repeat_grads)
 
-        norm = np.linalg.norm(gradient)**2
+        norm: float = np.linalg.norm(gradient).item()**2
         step = -self.step_size * gradient / norm
 
         new_cost = self._evaluate_cost(
@@ -77,10 +72,3 @@ class SPSA(Optimizer):
 
     def log_info(self) -> dict[str, Any]:
         return {'cost': self.cost, 'step_size': self.step_size}
-
-    def sample_count(self) -> int:
-        epsilon = self.hyperparams['epsilon']
-        n_hamiltonians = self.hyperparams['n_hamiltonians']
-
-        return math.ceil(n_hamiltonians *
-                         math.log2(max(3., self.iterations))**(1 + epsilon))
