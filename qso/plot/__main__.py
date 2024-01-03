@@ -2,9 +2,9 @@ import pennylane as qml
 
 from argparse import ArgumentParser, FileType, Namespace
 from jax import numpy as np
+from jax.numpy.linalg import eigvalsh
 from matplotlib import use as mpl_use, pyplot as plt
 from pathlib import Path
-from scipy.linalg import eigvalsh
 from serde import json as serde_json
 
 from . import confidence_plot
@@ -42,7 +42,7 @@ def run(args: Namespace):
                 problem.sample_hamiltonian() for _ in range(args.hamiltonians)
             ]) / args.hamiltonians
 
-            eigvals = np.array(eigvalsh(qml.matrix(expected_hamiltonian)))
+            eigvals = eigvalsh(qml.matrix(expected_hamiltonian))
 
             min_eigvals.append(np.min(eigvals))
             list_of_runs.append(optim_run)
