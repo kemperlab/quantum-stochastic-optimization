@@ -5,10 +5,9 @@ from tqdm import tqdm
 from typing import Callable, Literal
 
 from .runs import ExperimentRun
+from .style import COLORS
 
 Circuit = Callable[[Array], Array]
-
-colors = cycle(['b', 'g', 'r', 'c', 'm', 'y', 'k'])
 
 
 def confidence_plot(
@@ -17,7 +16,7 @@ def confidence_plot(
     ax: Axes,
     circuit: Circuit | None = None,
 ):
-    for color, (experiment, run_list) in zip(tqdm(colors), runs.items()):
+    for color, (experiment, run_list) in zip(tqdm(COLORS), runs.items()):
         all_xs: list[Array] = []
         all_ys: list[Array] = []
         for run in run_list:

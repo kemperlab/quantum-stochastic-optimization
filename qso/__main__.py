@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--run", type=int, default=0, dest="run_number")
     parser.add_argument("-i", "--info", action="store_true", dest="info")
     parser.add_argument("-n",
-                        "--n_hamiltonians",
+                        "--n-hamiltonians",
                         type=int,
                         default=10,
                         help="This is the number of hamiltonians to use for"
