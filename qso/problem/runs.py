@@ -39,7 +39,6 @@ class ResamplingParameters:
     epsilon: float
     hamiltonians: int
     split_shots: bool
-    resample_single: bool
 
 
 @dataclass

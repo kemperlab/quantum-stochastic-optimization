@@ -3,12 +3,11 @@
     "kind": "RunNumber"
   },
   "shots": 1024,
-  "steps": 50,
+  "steps": 200,
   "resampling": {
     "epsilon": 0.1,
     "hamiltonians": 10,
-    "split_shots": true,
-    "resample_single": false,
+    "split_shots": false,
     "resample": false
   },
   "optimizer": {

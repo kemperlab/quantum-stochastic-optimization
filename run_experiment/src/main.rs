@@ -24,7 +24,6 @@ struct ResamplingParameters {
     epsilon: f64,
     hamiltonians: usize,
     split_shots: bool,
-    resample_single: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
