@@ -4,7 +4,7 @@ from pathlib import Path
 from serde import json as serde_json
 from .loggers import PrettyPrint
 
-from .runs import OptimizationDescription
+from .problem import OptimizationDescription
 
 if __name__ == "__main__":
     parser = ArgumentParser()

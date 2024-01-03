@@ -6,10 +6,9 @@ from matplotlib import use as mpl_use, pyplot as plt
 from pathlib import Path
 from scipy.linalg import eigvalsh
 from serde import json as serde_json
-from qso.plot import confidence_plot
 
-from qso.runs import OptimizationDescription
-
+from . import confidence_plot
+from ..problem import OptimizationDescription
 from .runs import ExperimentRun
 
 

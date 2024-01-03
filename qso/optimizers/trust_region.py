@@ -1,4 +1,5 @@
-from typing import Any
+from __future__ import annotations
+from typing import Any, TYPE_CHECKING
 
 import pennylane as qml
 import math
@@ -8,8 +9,11 @@ from jax import numpy as np, Array
 from serde import serde
 from dataclasses import dataclass
 
-from ..runs import ResamplingParameters
-from .optimizer import Optimizer, Circuit
+from .optimizer import Optimizer
+
+if TYPE_CHECKING:
+    from .optimizer import Circuit
+    from ..problem import ResamplingParameters
 
 
 @serde

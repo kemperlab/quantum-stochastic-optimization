@@ -1,4 +1,5 @@
-from typing import Any, Callable
+from __future__ import annotations
+from typing import Any, Callable, TYPE_CHECKING
 
 import pennylane as qml
 import jax
@@ -8,7 +9,9 @@ from jax import numpy as np, Array
 from jax.random import PRNGKey
 from abc import ABC, abstractmethod
 
-from ..runs import ResamplingParameters
+
+if TYPE_CHECKING:
+    from ..problem import ResamplingParameters
 
 
 def mean(vals: list[float]) -> float:
@@ -83,7 +86,7 @@ class Optimizer(ABC):
 
         Parameters
         ---
-        - `resampling_params` (`qso.runs.ResamplingParameters`): The parameters
+        - `resampling_params` (`qso.problem.runs.ResamplingParameters`): The parameters
           that define how to resample from the distribution.
 
         Returns

@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Any, TYPE_CHECKING
+
 import pennylane as qml
 import jax
 
@@ -6,8 +9,12 @@ from jax import numpy as np, Array
 from serde import serde
 from dataclasses import dataclass
 
-from .optimizer import Optimizer, Circuit
+from .optimizer import Optimizer
 
+
+if TYPE_CHECKING:
+    from jax import Array
+    from .optimizer import Circuit
 
 @serde
 @dataclass

@@ -1,13 +1,19 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+from dataclasses import dataclass
 from random import randbytes
 from serde import serde, InternalTagging
-from dataclasses import dataclass
-from qso.problem.feature_selection import FeatureSelectionParameters, FeatureSelectionProblem
 
-from qso.problem.problem import QSOProblem
-from qso.problem.tight_binding import TightBindingParameters, TightBindingProblem
+from .tight_binding import TightBindingProblem, TightBindingParameters
+from .feature_selection import FeatureSelectionProblem, FeatureSelectionParameters
 
-from .optimizers import OptimizerParameters
-from .problem import ProblemParameters
+from ..optimizers import OptimizerParameters
+
+ProblemParameters = TightBindingParameters | FeatureSelectionParameters
+
+if TYPE_CHECKING:
+    from .problem import QSOProblem
 
 
 @serde

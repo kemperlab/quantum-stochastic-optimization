@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import pennylane as qml
 import jax
 
@@ -9,13 +12,15 @@ from pennylane.qaoa import x_mixer
 
 from qso.optimizers.optimizer import StateCircuit
 
-from qso.runs import OptimizationRun
-
 from ..problem import QSOProblem
+
 from ...data.feature_selection import random_linearly_correlated_data
 from ...utils import resample_data
 from ...utils.validation import check_ndarray
 from ...utils.ansatz import hamiltonian_ansatz
+
+if TYPE_CHECKING:
+    from ..runs import OptimizationRun
 
 N_LAYERS = 5
 

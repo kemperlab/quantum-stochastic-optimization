@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import pennylane as qml
 
 from abc import ABC, abstractmethod
@@ -6,12 +9,13 @@ from jax.random import PRNGKey
 
 from qso.utils import get_qdev
 
-from ..runs import OptimizationRun
+from ..optimizers import (AdamParameters, Adam, Spsa, SpsaParameters,
+                          TrustRegion, TrustRegionParameters)
 
-from ..optimizers import (AdamParameters, Adam, Circuit, Optimizer,
-                          OptimizerParameters, Spsa, SpsaParameters,
-                          StateCircuit, TrustRegion, TrustRegionParameters)
-from ..loggers import Logger
+if TYPE_CHECKING:
+    from ..loggers import Logger
+    from ..optimizers import Circuit, StateCircuit, Optimizer, OptimizerParameters
+    from .runs import OptimizationRun
 
 
 def get_optimizer(circuit: Circuit, param_count: int,
