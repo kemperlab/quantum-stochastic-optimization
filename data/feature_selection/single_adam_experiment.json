@@ -6,7 +6,7 @@
   "steps": 200,
   "resampling": {
     "epsilon": 0.1,
-    "hamiltonians": 10,
+    "hamiltonians": 2,
     "split_shots": false,
     "resample": false
   },
