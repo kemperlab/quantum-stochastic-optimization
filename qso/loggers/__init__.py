@@ -70,8 +70,8 @@ class PrettyPrint(Logger):
     def __init__(self, **metadata) -> None:
         super().__init__(**metadata)
 
-        assert 'n_steps' in metadata, "Expected to find the `n_steps` keyword in `metadata`."
-        self.bar = tqdm(total=metadata['n_steps'])
+        assert 'steps' in metadata, "Expected to find the `n_steps` keyword in `metadata`."
+        self.bar = tqdm(total=metadata['steps'])
 
     def log_step(self, state: dict[str, Any], **kwargs):
         """

@@ -5,6 +5,7 @@ from serde import json as serde_json
 from .loggers import PrettyPrint
 
 from .problem import OptimizationDescription
+from .utils import ProblemHamiltonian
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -12,6 +13,13 @@ if __name__ == "__main__":
                         type=FileType('rb'),
                         help="Path to run specification file.")
     parser.add_argument("-r", "--run", type=int, default=0, dest="run_number")
+    parser.add_argument("-i", "--info", action="store_true", dest="info")
+    parser.add_argument("-n",
+                        "--n_hamiltonians",
+                        type=int,
+                        default=10,
+                        help="This is the number of hamiltonians to use for"
+                        "info. It is only relevant if `info` flag is enabled.")
     parser.add_argument("-o",
                         "--log",
                         type=Path,
@@ -26,7 +34,20 @@ if __name__ == "__main__":
     run = run_desc.get_run(args.run_number)
     problem = run.get_problem()
 
-    logger = PrettyPrint(run=run, run_number=args.run, log_file=str(args.log))
+    if args.info:
+        n = args.n_hamiltonians
+
+        print("Default Hamiltonian:")
+        print(ProblemHamiltonian(problem.default_hamiltonian()))
+        print(f"Expected Hamiltonian ({n} samples):")
+        print(
+            ProblemHamiltonian(
+                sum([problem.default_hamiltonian() for _ in range(n)]) / n))
+
+    logger = PrettyPrint(run=run,
+                         run_number=args.run_number,
+                         log_file=str(args.log),
+                         steps=run.steps)
     logger.register_hook(lambda x: x.save_json(args.log, overwrite=True))
 
     problem.solve_problem(logger)
