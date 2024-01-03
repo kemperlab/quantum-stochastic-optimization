@@ -52,6 +52,7 @@ def run(args: Namespace):
             expected_hamiltonian = sum([
                 problem.sample_hamiltonian() for _ in range(args.hamiltonians)
             ]) / args.hamiltonians
+            expected_hamiltonian = expected_hamiltonian.simplify()
 
             eigvals = eigvalsh(qml.matrix(expected_hamiltonian))
 
@@ -134,6 +135,8 @@ if __name__ == "__main__":
     parser.add_argument('--true-costs', action='store_true', dest='true_costs')
     parser.add_argument('--shots', type=int, default=None)
     parser.add_argument('--sixel', action='store_true')
-    parser.add_argument('--x-axis', choices=['iterations', 'hamiltonians'], default='iterations')
+    parser.add_argument('--x-axis',
+                        choices=['iterations', 'hamiltonians'],
+                        default='iterations')
 
     run(parser.parse_args())
