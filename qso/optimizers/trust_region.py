@@ -127,10 +127,16 @@ class TrustRegion(Optimizer):
             ((self.cost - self.new_cost) / (self.cost - self.predicted_cost)),
         }
 
-    def sample_count(self, resampling_params: ResamplingParameters) -> int:
-        epsilon = resampling_params.epsilon
-        hamiltonians = resampling_params.hamiltonians
+    def sample_count(self,
+                     resampling_params: ResamplingParameters | None) -> int:
 
-        return math.ceil(hamiltonians *
-                         math.log2(max(3., self.iterations))**(1 + epsilon) *
-                         max(1., self.sigma_t2 / self.delta_t))
+        if resampling_params is not None:
+            epsilon = resampling_params.epsilon
+            hamiltonians = resampling_params.hamiltonians
+
+            return math.ceil(
+                hamiltonians *
+                math.log2(max(3., self.iterations))**(1 + epsilon) *
+                max(1., self.sigma_t2 / self.delta_t))
+        else:
+            return 1

@@ -30,7 +30,8 @@ TROTTER_STEPS = 5
 class TightBindingParameters:
     n_atoms: int = 5
     orbitals: set[Literal['s']] = field(default_factory=lambda: {'s'})
-    alpha: Distribution = field(default_factory=lambda: NormalDistribution(10., 1.5))
+    alpha: Distribution = field(
+        default_factory=lambda: NormalDistribution(10., 1.5))
 
 
 def potential_energy(orbital: Literal['s'], distance: float):
@@ -43,7 +44,7 @@ def potential_energy(orbital: Literal['s'], distance: float):
 def tight_binding_hamiltonian(
     n_atoms: int,
     orbitals: set[Literal['s']],
-    distance: float,
+    distances: Array,
 ) -> qml.Hamiltonian:
     n_orbitals = len(orbitals)
     orbital_list = list(orbitals)
@@ -52,6 +53,7 @@ def tight_binding_hamiltonian(
     for i in range(n_atoms - 1):
         j = i + 1
 
+        distance = distances[i].item()
         for k, orbital in enumerate(orbital_list):
             i_orbital = n_orbitals * i + k
             j_orbital = n_orbitals * j + k
@@ -93,13 +95,15 @@ class TightBindingProblem(QSOProblem):
 
     def sample_hamiltonian(self) -> qml.Hamiltonian:
         self.key, key = jax.random.split(self.key)
-        alpha = self.problem_params.alpha.sample(key)
+        alpha = self.problem_params.alpha.sample(
+            key, (self.problem_params.n_atoms - 1, ))
 
         return tight_binding_hamiltonian(self.problem_params.n_atoms,
                                          self.problem_params.orbitals, alpha)
 
     def default_hamiltonian(self) -> qml.Hamiltonian:
-        alpha = self.problem_params.alpha.expected()
+        alpha = self.problem_params.alpha.expected(
+            (self.problem_params.n_atoms - 1, ))
         return tight_binding_hamiltonian(self.problem_params.n_atoms,
                                          self.problem_params.orbitals, alpha)
 

@@ -4,23 +4,23 @@ from typing import TYPE_CHECKING
 import pennylane as qml
 import jax
 
-from jax import numpy as np, Array
+from jax import numpy as np
 from serde import serde
 from dataclasses import dataclass
 
 from pennylane.qaoa import x_mixer
 
-from qso.optimizers.optimizer import StateCircuit
-
 from ..problem import QSOProblem
-
 from ...data.feature_selection import random_linearly_correlated_data
 from ...utils import resample_data
 from ...utils.validation import check_ndarray
 from ...utils.ansatz import hamiltonian_ansatz
 
 if TYPE_CHECKING:
+    from jax import Array
+
     from ..runs import OptimizationRun
+    from ...optimizers.optimizer import StateCircuit
 
 N_LAYERS = 5
 

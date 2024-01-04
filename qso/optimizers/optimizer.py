@@ -9,7 +9,6 @@ from jax import numpy as np, Array
 from jax.random import PRNGKey
 from abc import ABC, abstractmethod
 
-
 if TYPE_CHECKING:
     from ..problem import ResamplingParameters
 
@@ -80,13 +79,14 @@ class Optimizer(ABC):
             "cost": self.cost,
         }
 
-    def sample_count(self, resampling_params: ResamplingParameters) -> int:
+    def sample_count(self,
+                     resampling_params: ResamplingParameters | None) -> int:
         """
         Gets the number of samples requested for the next step.
 
         Parameters
         ---
-        - `resampling_params` (`qso.problem.runs.ResamplingParameters`): The parameters
+        - `resampling_params` (`qso.problem.runs.ResamplingParameters | None`): The parameters
           that define how to resample from the distribution.
 
         Returns
@@ -94,7 +94,7 @@ class Optimizer(ABC):
         - `sample_count` (`int`): The number of requested samples.
         """
 
-        if resampling_params.resample:
+        if resampling_params is not None:
             epsilon = resampling_params.epsilon
             hamiltonians = resampling_params.hamiltonians
 

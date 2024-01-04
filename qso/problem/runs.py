@@ -35,7 +35,6 @@ class Seed:
 @serde
 @dataclass
 class ResamplingParameters:
-    resample: bool
     epsilon: float
     hamiltonians: int
     split_shots: bool
@@ -46,7 +45,7 @@ class OptimizationRun:
     seed: Seed
     shots: int
     steps: int
-    resampling: ResamplingParameters
+    resampling: ResamplingParameters | None
     optimizer: OptimizerParameters
     problem: ProblemParameters
 
@@ -67,7 +66,7 @@ class OptimizationDescription:
     seed: Seed | Random | RunNumber
     shots: int
     steps: int
-    resampling: ResamplingParameters
+    resampling: ResamplingParameters | None
     optimizer: OptimizerParameters
     problem: ProblemParameters
 

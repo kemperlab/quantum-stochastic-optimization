@@ -92,12 +92,18 @@ class ProblemHamiltonian:
 class NormalDistribution:
     mu: float
     sigma: float
+    simple: bool = True
 
-    def sample(self, key: Array) -> float:
-        return self.mu * jax.random.normal(key).item() + self.sigma
+    def sample(self, key: Array, shape: tuple[int, ...]) -> Array:
+        if self.simple:
+            return (self.mu * jax.random.normal(key).item() * np.ones(shape) +
+                    self.sigma)
+        else:
+            return (self.mu * jax.random.normal(key, shape=shape).item() +
+                    self.sigma)
 
-    def expected(self) -> float:
-        return self.mu
+    def expected(self, shape: tuple[int, ...]) -> Array:
+        return self.mu * np.ones(shape)
 
 
 Distribution = NormalDistribution

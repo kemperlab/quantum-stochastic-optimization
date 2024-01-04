@@ -165,15 +165,17 @@ class QSOProblem(ABC):
         for _ in range(self.run_params.steps):
             samples = optimizer.sample_count(self.run_params.resampling)
 
-            if self.run_params.resampling.split_shots:
-                step_shots = self.run_params.shots // samples
-            else:
-                step_shots = self.run_params.shots
-
-            if not self.run_params.resampling.resample:
-                hamiltonians = [self.default_hamiltonian()]
-            else:
+            if self.run_params.resampling is not None:
                 hamiltonians = self.get_hamiltonians(samples)
+
+                if self.run_params.resampling.split_shots:
+                    step_shots = self.run_params.shots // samples
+                else:
+                    step_shots = self.run_params.shots
+
+            else:
+                hamiltonians = [self.default_hamiltonian()]
+                step_shots = self.run_params.shots
 
             optimizer.step(hamiltonians, step_shots)
 
