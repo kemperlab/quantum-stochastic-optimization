@@ -39,6 +39,7 @@ def potential_energy(orbital: Literal['s'], distance: float):
 
     # distance should be in angstroms
     return -1.4 * 7.62 / distance**2  # eV
+    # return 1 / distance**2
 
 
 def tight_binding_hamiltonian(

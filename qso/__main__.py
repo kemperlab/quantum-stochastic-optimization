@@ -42,7 +42,7 @@ if __name__ == "__main__":
         print(f"Expected Hamiltonian ({n} samples):")
         print(
             ProblemHamiltonian(
-                sum([problem.default_hamiltonian() for _ in range(n)]) / n))
+                sum([problem.sample_hamiltonian() for _ in range(n)]) / n))
 
     logger = PrettyPrint(run=run,
                          run_number=args.run_number,

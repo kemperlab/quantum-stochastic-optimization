@@ -96,10 +96,10 @@ class NormalDistribution:
 
     def sample(self, key: Array, shape: tuple[int, ...]) -> Array:
         if self.simple:
-            return (self.mu * jax.random.normal(key).item() * np.ones(shape) +
+            return (self.mu + jax.random.normal(key).item() * np.ones(shape) *
                     self.sigma)
         else:
-            return (self.mu * jax.random.normal(key, shape=shape).item() +
+            return (self.mu + jax.random.normal(key, shape=shape).item() *
                     self.sigma)
 
     def expected(self, shape: tuple[int, ...]) -> Array:
