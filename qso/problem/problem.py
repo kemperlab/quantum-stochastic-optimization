@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import pennylane as qml
 
 from abc import ABC, abstractmethod
+import jax
 from jax import Array
 from jax.random import PRNGKey
 
@@ -19,16 +20,16 @@ if TYPE_CHECKING:
 
 
 def get_optimizer(circuit: Circuit, param_count: int,
-                  parameters: OptimizerParameters) -> Optimizer:
+                  parameters: OptimizerParameters, key: Array) -> Optimizer:
     match parameters:
         case AdamParameters():
-            return Adam(circuit, param_count, parameters)
+            return Adam(circuit, param_count, parameters, key)
 
         case SpsaParameters():
-            return Spsa(circuit, param_count, parameters)
+            return Spsa(circuit, param_count, parameters, key)
 
         case TrustRegionParameters():
-            return TrustRegion(circuit, param_count, parameters)
+            return TrustRegion(circuit, param_count, parameters, key)
 
 
 class QSOProblem(ABC):
@@ -124,7 +125,7 @@ class QSOProblem(ABC):
             return qml.expval(hamiltonian)  # type: ignore
 
         def cost_circuit(params: Array, hamiltonians: list[qml.Hamiltonian],
-                         shots_per_hamiltonian: int) -> list[Array]:
+                         shots_per_hamiltonian: int | None) -> list[Array]:
             return [
                 single_cost_circuit(params,
                                     hamiltonian,
@@ -159,8 +160,13 @@ class QSOProblem(ABC):
         param_count, _, _ = self.get_ansatz()
         cost_circuit = self.get_cost_circuit()
 
-        optimizer = get_optimizer(cost_circuit, param_count,
-                                  self.run_params.optimizer)
+        self.key, optimizer_key = jax.random.split(self.key)
+        optimizer = get_optimizer(
+            cost_circuit,
+            param_count,
+            self.run_params.optimizer,
+            optimizer_key,
+        )
 
         for _ in range(self.run_params.steps):
             samples = optimizer.sample_count(self.run_params.resampling)

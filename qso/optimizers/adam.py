@@ -10,7 +10,6 @@ from dataclasses import dataclass
 
 from .optimizer import Optimizer
 
-
 if TYPE_CHECKING:
     from jax import Array
     from .optimizer import Circuit
@@ -49,7 +48,7 @@ class Adam(Optimizer):
     def optimizer_step(
         self,
         hamiltonians: list[qml.Hamiltonian],
-        shots_per_hamiltonian: int,
+        shots_per_hamiltonian: int | None,
     ):
         self.iters += 1
 

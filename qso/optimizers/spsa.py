@@ -11,10 +11,10 @@ from dataclasses import dataclass
 
 from .optimizer import Optimizer
 
-
 if TYPE_CHECKING:
     from jax import Array
     from .optimizer import Circuit
+
 
 @serde
 @dataclass
@@ -40,7 +40,7 @@ class Spsa(Optimizer):
     def optimizer_step(
         self,
         hamiltonians: list[qml.Hamiltonian],
-        shots_per_hamiltonian: int,
+        shots_per_hamiltonian: int | None,
     ):
         gradient = np.zeros_like(self.params)
 

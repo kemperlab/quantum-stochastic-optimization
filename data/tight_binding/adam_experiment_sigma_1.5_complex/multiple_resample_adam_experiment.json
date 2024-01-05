@@ -6,9 +6,8 @@
   "steps": 200,
   "resampling": {
     "epsilon": 0.1,
-    "hamiltonians": 2,
-    "split_shots": false,
-    "resample": true
+    "hamiltonians": 1,
+    "split_shots": false
   },
   "optimizer": {
     "alpha": 0.01,
@@ -25,7 +24,7 @@
     "alpha": {
       "mu": 10,
       "sigma": 1.5,
-      "simple": true,
+      "simple": false,
       "kind": "NormalDistribution"
     },
     "kind": "TightBindingParameters"

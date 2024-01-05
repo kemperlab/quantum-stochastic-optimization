@@ -22,6 +22,9 @@ if TYPE_CHECKING:
 
 
 def run(args: Namespace):
+    if args.names:
+        assert len(args.names) == len(args.folders)
+
     optimization_run_data = args.problem_spec.read()
     run_description = serde_json.from_json(OptimizationDescription,
                                            optimization_run_data)
@@ -33,10 +36,18 @@ def run(args: Namespace):
     ax: Axes = fig.add_subplot()
 
     min_eigvals = []
+    lowest_points = []
+    ranges = []
 
-    folders = list(map(Path, args.folders))
-    for color, folder in zip(COLORS, tqdm(folders, desc="Folders")):
-        experiment_name = str(folder)
+    if not args.names:
+        folders = list(map(Path, args.folders))
+        experiments = list(zip(folders, map(str, folders)))
+    else:
+        experiments = list(zip(map(Path, args.folders), args.names))
+
+    for color, (folder,
+                experiment_name) in zip(COLORS,
+                                        tqdm(experiments, desc="Folders")):
 
         all_xs: list[Array] = []
         all_ys: list[Array] = []
@@ -67,19 +78,21 @@ def run(args: Namespace):
                     circuit(
                         param,
                         [expected_hamiltonian],
-                        args.shots,
+                        None,
                     )[0].item() for param in tqdm(exp_run.get_params(),
                                                   desc="True Cost computation")
                 ])
             else:
                 ys = exp_run.get_costs()
-            ax.plot(xs, ys, color=color, alpha=0.05)
+            ax.plot(xs, ys, color=color, alpha=0.02)
 
             all_xs.append(xs)
             all_ys.append(ys)
 
         start_x = max(x.min().item() for x in all_xs)
         end_x = min(x.max().item() for x in all_xs)
+
+        ranges.append((start_x, end_x))
 
         xs = np.linspace(start_x, end_x, 1000)
         sample_ys = np.stack(
@@ -100,10 +113,22 @@ def run(args: Namespace):
                         color=color,
                         alpha=0.2)
 
-    ax.axhline(np.mean(np.array(min_eigvals)).item(),
-               color='black',
-               linestyle='--')
+        lowest_points.append(mean_ys.min().item())
+
+    ground_energy = np.mean(np.array(min_eigvals)).item()
+    ax.axhline(ground_energy, color='black', linestyle='--')
+
+    ax.set_ylim(bottom=min(ground_energy, *lowest_points) - 0.05)
+
+    x_min, x_max = max(map(lambda x: x[0],
+                           ranges)), min(map(lambda x: x[1], ranges))
+    x_range = x_max - x_min
+
+    ax.set_xlim(left=x_min - 0.01 * x_range, right=x_max + 0.01 * x_range)
+
     ax.legend()
+    ax.grid()
+
     ax.set_xlabel(args.x_axis)
     ax.set_ylabel("Cost")
     ax.set_title(f"Costs vs. {args.x_axis.title()}")
@@ -121,6 +146,7 @@ if __name__ == "__main__":
                         nargs='+',
                         dest='folders',
                         required=True)
+    parser.add_argument('--names', nargs='*')
     parser.add_argument('-p',
                         '--problem-spec',
                         type=FileType('r'),
@@ -136,7 +162,7 @@ if __name__ == "__main__":
     parser.add_argument('--shots', type=int, default=None)
     parser.add_argument('--sixel', action='store_true')
     parser.add_argument('--x-axis',
-                        choices=['iterations', 'hamiltonians'],
+                        choices=['iterations', 'shots'],
                         default='iterations')
 
     run(parser.parse_args())

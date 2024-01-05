@@ -46,7 +46,7 @@ class TrustRegion(Optimizer):
     def optimizer_step(
         self,
         hamiltonians: list[qml.Hamiltonian],
-        shots_per_hamiltonian: int,
+        shots_per_hamiltonian: int | None,
     ):
         rho = self.hyperparams.rho
         gamma_1 = self.hyperparams.gamma_1

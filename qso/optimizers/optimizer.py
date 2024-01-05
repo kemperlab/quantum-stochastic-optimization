@@ -17,7 +17,7 @@ def mean(vals: list[float]) -> float:
     return sum(vals) / len(vals)
 
 
-Circuit = Callable[[Array, list[qml.Hamiltonian], int], list[Array]]
+Circuit = Callable[[Array, list[qml.Hamiltonian], int | None], list[Array]]
 StateCircuit = Callable[[Array], None]
 
 
@@ -50,7 +50,7 @@ class Optimizer(ABC):
         self,
         params: Array,
         hamiltonians: list[qml.Hamiltonian],
-        shots_per_hamiltonian: int,
+        shots_per_hamiltonian: int | None,
     ) -> Array:
         return np.array(
             self.circuit(params, hamiltonians, shots_per_hamiltonian)).mean()
@@ -58,7 +58,7 @@ class Optimizer(ABC):
     def step(
         self,
         hamiltonians: list[qml.Hamiltonian],
-        shots_per_hamiltonian: int,
+        shots_per_hamiltonian: int | None,
     ):
         self.cost = float(
             self._evaluate_cost(self.params, hamiltonians,
@@ -70,7 +70,7 @@ class Optimizer(ABC):
 
     @abstractmethod
     def optimizer_step(self, hamiltonians: list[qml.Hamiltonian],
-                       shots_per_hamiltonian: int):
+                       shots_per_hamiltonian: int | None):
         ...
 
     def log_info(self) -> dict[str, Any]:

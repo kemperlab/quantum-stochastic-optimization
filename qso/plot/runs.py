@@ -25,15 +25,17 @@ class ExperimentRun:
             if isinstance(iteration.params, str):
                 iteration.params = literal_eval(iteration.params)
 
-    def get_x_axis(self, axis_type: Literal['iterations',
-                                            'hamiltonians']) -> Array:
+    def get_x_axis(self, axis_type: Literal['iterations', 'shots']) -> Array:
         match axis_type:
             case 'iterations':
                 return np.arange(len(self.iterations))
 
-            case 'hamiltonians':
-                return np.cumsum(np.array([i.samples
-                                           for i in self.iterations]))
+            case 'shots':
+                return np.cumsum(
+                    np.array([
+                        i.samples * i.shots_per_hamiltonians
+                        for i in self.iterations
+                    ]))
 
             case _:
                 raise ValueError(f'Invalid axis type, got {axis_type}')
