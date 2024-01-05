@@ -22,8 +22,6 @@ if TYPE_CHECKING:
     from ..runs import OptimizationRun
     from ...optimizers.optimizer import StateCircuit
 
-N_LAYERS = 5
-
 
 @serde
 @dataclass
@@ -40,6 +38,8 @@ class FeatureSelectionParameters:
     gamma: float = 0.05
 
     alpha: float = 0.5
+
+    layers: int = 5
 
 
 def objective_matrix(feature_data: Array,
@@ -160,6 +160,7 @@ class FeatureSelectionProblem(QSOProblem):
     def get_ansatz(self) -> tuple[int, int, StateCircuit]:
         n_var = self.n_var
         x_hamiltonian = x_mixer(range(n_var))
+        layers = self.problem_params.layers
 
         def qaoa_layer(times: Array, params: Array):
             qml.CommutingEvolution(
@@ -173,9 +174,9 @@ class FeatureSelectionProblem(QSOProblem):
                 qml.PauliX(wire)
                 qml.Hadamard(wire)
 
-            times = params[:2 * N_LAYERS].reshape(N_LAYERS, 2)
-            params = params[2 * N_LAYERS:]
+            times = params[:2 * layers].reshape(layers, 2)
+            params = params[2 * layers:]
 
-            qml.layer(qaoa_layer, N_LAYERS, times, params=params)
+            qml.layer(qaoa_layer, layers, times, params=params)
 
-        return 2 * N_LAYERS + 2 * n_var - 1, n_var, state_circuit
+        return 2 * layers + 2 * n_var - 1, n_var, state_circuit

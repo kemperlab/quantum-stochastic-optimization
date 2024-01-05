@@ -8,8 +8,6 @@
     "epsilon": 0.1,
     "hamiltonians": 2,
     "split_shots": true,
-    "resample_single": true,
-    "resample": true
   },
   "optimizer": {
     "alpha": 0.01,
@@ -40,6 +38,7 @@
       0.3836877
     ],
     "alpha": 0.5,
+    "layers": 5,
     "kind": "FeatureSelectionParameters"
   }
 }

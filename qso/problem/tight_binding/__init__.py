@@ -21,9 +21,6 @@ if TYPE_CHECKING:
     from jax import Array
     from ..runs import OptimizationRun
 
-N_LAYERS = 5
-TROTTER_STEPS = 5
-
 
 @serde
 @dataclass
@@ -32,6 +29,9 @@ class TightBindingParameters:
     orbitals: set[Literal['s']] = field(default_factory=lambda: {'s'})
     alpha: Distribution = field(
         default_factory=lambda: NormalDistribution(10., 1.5))
+
+    layers: int = 5
+    trotter_steps: int = 1
 
 
 def potential_energy(orbital: Literal['s'], distance: float):
@@ -111,13 +111,14 @@ class TightBindingProblem(QSOProblem):
     def get_ansatz(self) -> tuple[int, int, StateCircuit]:
         n_var = self.n_var
         x_hamiltonian = x_mixer(range(n_var))
+        layers = self.problem_params.layers
 
         def qaoa_layer(times: Array, params: Array):
             qml.ApproxTimeEvolution(
                 hamiltonian_ansatz(params, 'z', 'x', n_var) +
                 hamiltonian_ansatz(params, 'z', 'y', n_var),
                 times[0],
-                TROTTER_STEPS,
+                self.problem_params.trotter_steps,
             )
             qml.CommutingEvolution(x_hamiltonian, times[1])
 
@@ -126,9 +127,9 @@ class TightBindingProblem(QSOProblem):
                 qml.PauliX(wire)
                 qml.Hadamard(wire)
 
-            times = params[:2 * N_LAYERS].reshape(N_LAYERS, 2)
-            params = params[2 * N_LAYERS:]
+            times = params[:2 * layers].reshape(layers, 2)
+            params = params[2 * layers:]
 
-            qml.layer(qaoa_layer, N_LAYERS, times, params=params)
+            qml.layer(qaoa_layer, layers, times, params=params)
 
-        return 2 * N_LAYERS + 2 * n_var - 1, n_var, state_circuit
+        return 2 * layers + 2 * n_var - 1, n_var, state_circuit

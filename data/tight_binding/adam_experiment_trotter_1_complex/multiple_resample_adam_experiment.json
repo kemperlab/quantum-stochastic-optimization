@@ -27,6 +27,8 @@
       "simple": false,
       "kind": "NormalDistribution"
     },
+    "layers": 5,
+    "trotter_steps": 1,
     "kind": "TightBindingParameters"
   }
 }

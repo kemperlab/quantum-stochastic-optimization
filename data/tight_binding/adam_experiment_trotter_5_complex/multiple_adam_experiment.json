@@ -4,7 +4,11 @@
   },
   "shots": 1024,
   "steps": 200,
-  "resampling": null,
+  "resampling": {
+    "epsilon": 0.1,
+    "hamiltonians": 1,
+    "split_shots": false
+  },
   "optimizer": {
     "alpha": 0.01,
     "beta_1": 0.9,
@@ -23,6 +27,8 @@
       "simple": false,
       "kind": "NormalDistribution"
     },
+    "layers": 5,
+    "trotter_steps": 1,
     "kind": "TightBindingParameters"
   }
 }

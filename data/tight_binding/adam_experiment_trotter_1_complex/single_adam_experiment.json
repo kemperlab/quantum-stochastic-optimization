@@ -1,0 +1,30 @@
+{
+  "seed": {
+    "kind": "RunNumber"
+  },
+  "shots": 1024,
+  "steps": 200,
+  "resampling": null,
+  "optimizer": {
+    "alpha": 0.01,
+    "beta_1": 0.9,
+    "beta_2": 0.999,
+    "eps": 1E-8,
+    "kind": "AdamParameters"
+  },
+  "problem": {
+    "n_atoms": 5,
+    "orbitals": [
+      "s"
+    ],
+    "alpha": {
+      "mu": 10,
+      "sigma": 1.5,
+      "simple": false,
+      "kind": "NormalDistribution"
+    },
+    "layers": 5,
+    "trotter_steps": 1,
+    "kind": "TightBindingParameters"
+  }
+}
