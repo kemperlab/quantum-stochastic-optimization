@@ -66,7 +66,6 @@ def run(args: Namespace):
             expected_hamiltonian = expected_hamiltonian.simplify()
 
             eigvals = eigvalsh(qml.matrix(expected_hamiltonian))
-
             min_eigvals.append(np.min(eigvals))
 
             xs = exp_run.get_x_axis(args.x_axis)
@@ -84,7 +83,7 @@ def run(args: Namespace):
                 ])
             else:
                 ys = exp_run.get_costs()
-            ax.plot(xs, ys, color=color, alpha=0.02)
+            ax.plot(xs, ys, color=color, alpha=0.04)
 
             all_xs.append(xs)
             all_ys.append(ys)
