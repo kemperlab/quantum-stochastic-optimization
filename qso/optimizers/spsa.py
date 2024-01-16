@@ -42,12 +42,16 @@ class Spsa(Optimizer):
         hamiltonians: list[qml.Hamiltonian],
         shots_per_hamiltonian: int | None,
     ):
-        gradient = np.zeros_like(self.params)
+        hamiltonians = [
+            (sum(hamiltonians) / len(hamiltonians)).simplify()  # type: ignore
+        ]
+
+        gradient_estimate = np.zeros_like(self.params)
 
         for _ in range(self.hyperparams.repeat_grads):
             self.key, subkey = jax.random.split(self.key)
-            perturbation = 2. * jax.random.bernoulli(
-                subkey, shape=(self.param_count, )) - 1.
+            perturbation = jax.random.rademacher(subkey,
+                                                 shape=(self.param_count, ))
 
             dcosts = (self._evaluate_cost(
                 self.params + perturbation * self.step_size,
@@ -59,11 +63,11 @@ class Spsa(Optimizer):
                 shots_per_hamiltonian,
             ))
 
-            gradient += dcosts / (2 * perturbation * self.step_size *
-                                  self.hyperparams.repeat_grads)
+            gradient_estimate += dcosts / (2 * perturbation * self.step_size *
+                                           self.hyperparams.repeat_grads)
 
-        norm: float = np.linalg.norm(gradient).item()**2
-        step = -self.step_size * gradient / norm
+        norm: float = np.linalg.norm(gradient_estimate).item()**2
+        step = -self.step_size * gradient_estimate / norm
 
         new_cost = self._evaluate_cost(
             self.params + step,

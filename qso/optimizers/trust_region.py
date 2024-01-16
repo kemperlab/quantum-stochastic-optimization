@@ -3,7 +3,6 @@ from typing import Any, TYPE_CHECKING
 
 import pennylane as qml
 import math
-import jax
 
 from jax import numpy as np, Array
 from serde import serde
@@ -13,7 +12,7 @@ from .optimizer import Optimizer
 
 if TYPE_CHECKING:
     from .optimizer import Circuit
-    from ..problem import ResamplingParameters
+    from ..problem.resampling_params import ResamplingParameters, MultipleHamiltonians
 
 
 @serde
@@ -36,8 +35,6 @@ class TrustRegion(Optimizer):
         key: Array | None = None,
     ) -> None:
         super().__init__(qnode, param_count, key)
-
-        self.jacobian: Circuit = jax.jacrev(self.circuit, argnums=0)
 
         self.hyperparams = trust_region_params
         self.delta_t = trust_region_params.delta_0
@@ -130,13 +127,17 @@ class TrustRegion(Optimizer):
     def sample_count(self,
                      resampling_params: ResamplingParameters | None) -> int:
 
-        if resampling_params is not None:
-            epsilon = resampling_params.epsilon
-            hamiltonians = resampling_params.hamiltonians
+        match resampling_params:
+            case MultipleHamiltonians():
+                epsilon = resampling_params.epsilon
+                hamiltonians = resampling_params.hamiltonians
 
-            return math.ceil(
-                hamiltonians *
-                math.log2(max(3., self.iterations))**(1 + epsilon) *
-                max(1., self.sigma_t2 / self.delta_t))
-        else:
-            return 1
+                return math.ceil(
+                    hamiltonians *
+                    math.log2(max(3., self.iterations))**(1 + epsilon) *
+                    max(1., self.sigma_t2 / self.delta_t))
+            case _:
+                return 1
+
+    def uses_individual_hamiltonians(self) -> bool:
+        return True

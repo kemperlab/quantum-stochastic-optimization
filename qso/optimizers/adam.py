@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Any, TYPE_CHECKING
 
 import pennylane as qml
-import jax
 
 from jax import numpy as np
 from serde import serde
@@ -35,7 +34,6 @@ class Adam(Optimizer):
     ) -> None:
         super().__init__(circuit, param_count, key)
 
-        self.jacobian: Circuit = jax.jacobian(self.circuit, argnums=0)
         self.hyperparams = adam_params
 
         self.m = np.zeros_like(self.params)
@@ -57,10 +55,7 @@ class Adam(Optimizer):
         beta_2 = self.hyperparams.beta_2
         epsilon = self.hyperparams.epsilon
 
-        jacobians = np.array(
-            self.jacobian(self.params, hamiltonians, shots_per_hamiltonian))
-
-        mean_gradient = jacobians.mean(axis=0)
+        mean_gradient = self._evaluate_grad(self.params, hamiltonians, shots_per_hamiltonian)
         mean_gradient_norm = np.linalg.norm(mean_gradient)
 
         self.grad_norm = float(mean_gradient_norm)

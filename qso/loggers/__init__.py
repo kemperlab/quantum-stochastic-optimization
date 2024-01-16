@@ -46,6 +46,12 @@ class Logger():
         for callable in self.step_hooks:
             callable(self)
 
+    def add_data(self, kw: str, value: Any):
+        assert kw != 'iterations', ("'iterations' is a special key for"
+                                    "`Logger`. Users cannot write to this key"
+                                    "manually.")
+        self.state[kw] = value
+
     def __getitem__(self, idx: str) -> Any:
         return self.state[idx]
 

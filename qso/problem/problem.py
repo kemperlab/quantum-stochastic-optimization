@@ -8,15 +8,18 @@ import jax
 from jax import Array
 from jax.random import PRNGKey
 
-from qso.utils import get_qdev
+from qso.utils import ProblemHamiltonian, get_qdev
 
 from ..optimizers import (AdamParameters, Adam, Spsa, SpsaParameters,
                           TrustRegion, TrustRegionParameters)
 
 if TYPE_CHECKING:
+    from pennylane import Hamiltonian
     from ..loggers import Logger
     from ..optimizers import Circuit, StateCircuit, Optimizer, OptimizerParameters
     from .runs import OptimizationRun
+
+from .resampling_params import MultipleHamiltonians, DefaultHamiltonian, ExpectedHamiltonian
 
 
 def get_optimizer(circuit: Circuit, param_count: int,
@@ -44,13 +47,13 @@ class QSOProblem(ABC):
     def __init__(self,
                  run_params: OptimizationRun,
                  key: Array | None = None) -> None:
-        self.common_random_hamiltonians: list[qml.Hamiltonian] = []
+        self.common_random_hamiltonians: list[Hamiltonian] = []
 
         self.run_params = run_params
         self.key = key if key is not None else PRNGKey(run_params.seed.seed)
 
     @abstractmethod
-    def sample_hamiltonian(self) -> qml.Hamiltonian:
+    def sample_hamiltonian(self) -> Hamiltonian:
         """
         This method should sample a Hamiltonian uniformly from the underlying
         distribution.
@@ -62,7 +65,7 @@ class QSOProblem(ABC):
         ...
 
     @abstractmethod
-    def default_hamiltonian(self) -> qml.Hamiltonian:
+    def default_hamiltonian(self) -> Hamiltonian:
         """
         This method should sample the default Hamiltonian for the problem.
         In the case of feature selection, for example, the Hamiltonian produced
@@ -74,7 +77,7 @@ class QSOProblem(ABC):
         """
         ...
 
-    def get_hamiltonians(self, n: int) -> list[qml.Hamiltonian]:
+    def get_hamiltonians(self, n: int) -> list[Hamiltonian]:
         """
         Gets the first-`n` hamiltonians saved in the set of
         `common_random_hamiltonians`.
@@ -99,7 +102,7 @@ class QSOProblem(ABC):
         - `circuit` (`qso.optimizer.StateCircuit`): A circuit ansatz that takes
           a parameter array (`jax.Array`) and prepares a state. This will
           typically be further composed with `qml.expval` calls for some
-          `qml.Hamiltonian` instances to get expectation values.
+          `Hamiltonian` instances to get expectation values.
         """
         ...
 
@@ -120,11 +123,11 @@ class QSOProblem(ABC):
 
         @qml.qnode(qdev)
         def single_cost_circuit(params: Array,
-                                hamiltonian: qml.Hamiltonian) -> Array:
+                                hamiltonian: Hamiltonian) -> Array:
             state_circuit(params)
             return qml.expval(hamiltonian)  # type: ignore
 
-        def cost_circuit(params: Array, hamiltonians: list[qml.Hamiltonian],
+        def cost_circuit(params: Array, hamiltonians: list[Hamiltonian],
                          shots_per_hamiltonian: int | None) -> list[Array]:
             return [
                 single_cost_circuit(params,
@@ -168,20 +171,43 @@ class QSOProblem(ABC):
             optimizer_key,
         )
 
+        match self.run_params.resampling:
+            case ExpectedHamiltonian():
+                n_hamiltonians = self.run_params.resampling.hamiltonians
+
+                self.expected_hamiltonian = (sum([
+                    self.sample_hamiltonian() for _ in range(n_hamiltonians)
+                ]) / n_hamiltonians).simplify()  # type: ignore
+
+                print(ProblemHamiltonian(
+                    self.expected_hamiltonian))  # type: ignore
+                logger.add_data(
+                    'expected_hamiltonian_estimate',
+                    qml.matrix(
+                        self.expected_hamiltonian).tolist())  # type: ignore
+                # TODO: deal with all the ignored types here
+
         for _ in range(self.run_params.steps):
             samples = optimizer.sample_count(self.run_params.resampling)
 
-            if self.run_params.resampling is not None:
-                hamiltonians = self.get_hamiltonians(samples)
+            match self.run_params.resampling:
+                case MultipleHamiltonians():
+                    hamiltonians: list[Hamiltonian] = self.get_hamiltonians(
+                        samples)
 
-                if self.run_params.resampling.split_shots:
-                    step_shots = self.run_params.shots // samples
-                else:
+                    if (optimizer.uses_individual_hamiltonians()
+                            and self.run_params.resampling.split_shots):
+                        step_shots = self.run_params.shots // samples
+                    else:
+                        step_shots = self.run_params.shots
+
+                case ExpectedHamiltonian():
+                    hamiltonians = [self.expected_hamiltonian]  # type: ignore
                     step_shots = self.run_params.shots
 
-            else:
-                hamiltonians = [self.default_hamiltonian()]
-                step_shots = self.run_params.shots
+                case DefaultHamiltonian():
+                    hamiltonians = [self.default_hamiltonian()]
+                    step_shots = self.run_params.shots
 
             optimizer.step(hamiltonians, step_shots)
 

@@ -5,8 +5,11 @@ from dataclasses import dataclass
 from random import randbytes
 from serde import serde, InternalTagging
 
-from .tight_binding import TightBindingProblem, TightBindingParameters
-from .feature_selection import FeatureSelectionProblem, FeatureSelectionParameters
+from .tight_binding import TightBindingProblem
+from .tight_binding.params import TightBindingParameters
+from .feature_selection import FeatureSelectionProblem
+from .feature_selection.params import FeatureSelectionParameters
+from .resampling_params import ResamplingParameters
 
 from ..optimizers import OptimizerParameters
 
@@ -32,20 +35,12 @@ class Seed:
     seed: int
 
 
-@serde
-@dataclass
-class ResamplingParameters:
-    epsilon: float
-    hamiltonians: int
-    split_shots: bool
-
-
 @dataclass
 class OptimizationRun:
     seed: Seed
     shots: int
     steps: int
-    resampling: ResamplingParameters | None
+    resampling: ResamplingParameters
     optimizer: OptimizerParameters
     problem: ProblemParameters
 
@@ -66,7 +61,7 @@ class OptimizationDescription:
     seed: Seed | Random | RunNumber
     shots: int
     steps: int
-    resampling: ResamplingParameters | None
+    resampling: ResamplingParameters
     optimizer: OptimizerParameters
     problem: ProblemParameters
 

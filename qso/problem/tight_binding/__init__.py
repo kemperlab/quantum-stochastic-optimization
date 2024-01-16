@@ -5,9 +5,6 @@ import pennylane as qml
 import jax
 
 from jax import Array
-from serde import serde
-from dataclasses import dataclass, field
-
 from pennylane.qaoa import x_mixer
 from pennylane.fermi import FermiSentence
 from pennylane.qchem import qubit_observable
@@ -15,23 +12,10 @@ from pennylane.qchem import qubit_observable
 from ..problem import QSOProblem
 from ...optimizers import StateCircuit
 from ...utils.ansatz import hamiltonian_ansatz
-from ...utils import NormalDistribution, Distribution
 
 if TYPE_CHECKING:
-    from jax import Array
+    from .params import TightBindingParameters
     from ..runs import OptimizationRun
-
-
-@serde
-@dataclass
-class TightBindingParameters:
-    n_atoms: int = 5
-    orbitals: set[Literal['s']] = field(default_factory=lambda: {'s'})
-    alpha: Distribution = field(
-        default_factory=lambda: NormalDistribution(10., 1.5))
-
-    layers: int = 5
-    trotter_steps: int = 1
 
 
 def potential_energy(orbital: Literal['s'], distance: float):

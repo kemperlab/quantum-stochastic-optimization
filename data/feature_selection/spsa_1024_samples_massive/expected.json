@@ -1,0 +1,41 @@
+{
+  "seed": {
+    "kind": "RunNumber"
+  },
+  "shots": 1024,
+  "steps": 2000,
+  "resampling": {
+    "hamiltonians": 60,
+    "kind": "ExpectedHamiltonian"
+  },
+  "optimizer": {
+    "step_size": 0.01,
+    "repeat_grads": 5,
+    "kind": "SpsaParameters"
+  },
+  "problem": {
+    "k_real": 2,
+    "k_fake": 2,
+    "k_redundant": 2,
+    "samples": 256,
+    "betas": 0.1,
+    "gamma": 0.1,
+    "redundancy_matrix": [
+      [
+        1.4919407,
+        -1.54747139
+      ],
+      [
+        -0.81812471,
+        1.14588248
+      ]
+    ],
+    "response_vector": [
+      0.763265,
+      0.3836877
+    ],
+    "alpha": 0.5,
+    "layers": 5,
+    "kind": "FeatureSelectionParameters"
+  }
+}

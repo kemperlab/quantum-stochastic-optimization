@@ -1,0 +1,33 @@
+{
+  "seed": {
+    "kind": "RunNumber"
+  },
+  "shots": 1024,
+  "steps": 2000,
+  "resampling": {
+    "epsilon": 0.1,
+    "hamiltonians": 64,
+    "split_shots": false,
+    "kind": "MultipleHamiltonians"
+  },
+  "optimizer": {
+    "step_size": 0.01,
+    "repeat_grads": 5,
+    "kind": "SpsaParameters"
+  },
+  "problem": {
+    "n_atoms": 5,
+    "orbitals": [
+      "s"
+    ],
+    "alpha": {
+      "mu": 10,
+      "sigma": 1.5,
+      "simple": false,
+      "kind": "NormalDistribution"
+    },
+    "layers": 5,
+    "trotter_steps": 1,
+    "kind": "TightBindingParameters"
+  }
+}

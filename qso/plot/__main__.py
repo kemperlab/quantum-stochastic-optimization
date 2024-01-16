@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from qso.plot.style import COLORS
 
-from ..problem import OptimizationDescription
+from ..problem.runs import OptimizationDescription
 from .runs import ExperimentRun
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ def run(args: Namespace):
                 ])
             else:
                 ys = exp_run.get_costs()
-            ax.plot(xs, ys, color=color, alpha=0.04)
+            ax.plot(xs, ys, color=color, alpha=0.01)
 
             all_xs.append(xs)
             all_ys.append(ys)

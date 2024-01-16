@@ -4,7 +4,7 @@ from pathlib import Path
 from serde import json as serde_json
 from .loggers import PrettyPrint
 
-from .problem import OptimizationDescription
+from .problem.runs import OptimizationDescription
 from .utils import ProblemHamiltonian
 
 if __name__ == "__main__":

@@ -5,8 +5,6 @@ import pennylane as qml
 import jax
 
 from jax import numpy as np
-from serde import serde
-from dataclasses import dataclass
 
 from pennylane.qaoa import x_mixer
 
@@ -19,27 +17,9 @@ from ...utils.ansatz import hamiltonian_ansatz
 if TYPE_CHECKING:
     from jax import Array
 
+    from .params import FeatureSelectionParameters
     from ..runs import OptimizationRun
     from ...optimizers.optimizer import StateCircuit
-
-
-@serde
-@dataclass
-class FeatureSelectionParameters:
-    redundancy_matrix: list[list[float]]
-    response_vector: list[float]
-
-    k_real: int = 2
-    k_fake: int = 2
-    k_redundant: int = 2
-
-    samples: int = 1024
-    betas: list[float] | float = 0.05
-    gamma: float = 0.05
-
-    alpha: float = 0.5
-
-    layers: int = 5
 
 
 def objective_matrix(feature_data: Array,
